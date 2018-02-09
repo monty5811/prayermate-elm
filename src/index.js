@@ -1,0 +1,60 @@
+const Elm = require('./Main.elm');
+
+require('./test_data.json');
+require('../node_modules/tailwindcss/dist/tailwind.min.css');
+
+const LOCAL_STORAGE_KEY = 'pm-cached-value-v1';
+
+function save2LS(newValue) {
+  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newValue));
+}
+
+function registerSW() {
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function()  {
+      navigator.serviceWorker.register('/sw.js').then(function(registration) {
+        console.log('SW registered: ', registration);
+      }).catch(function (registrationError) {
+        console.log('SW registration failed: ', registrationError);
+      });
+    });
+  }
+}
+
+function handleDOMContentLoaded() {
+  // setup elm
+  const app = Elm.Main.fullscreen({
+    cachedData: localStorage.getItem(LOCAL_STORAGE_KEY) || ''
+  });
+  app.ports.saveData.subscribe(function(data) {
+    save2LS(data);
+  });
+
+  app.ports.fileSelected.subscribe(function readFile(id) {
+    var node = document.getElementById(id);
+    if (node === null) {
+      return;
+    }
+    // only grab one file
+    var file = node.files[0];
+    var reader = new FileReader();
+
+    reader.onload = (function(event) {
+      // The event carries the `target`. The `target` is the file
+      // that was selected. The result is base64 encoded contents of the file.
+      var base64encoded = event.target.result;
+      var portData = {
+        contents: base64encoded,
+        filename: file.name
+      };
+      app.ports.fileContentRead.send(portData);
+    });
+
+    reader.readAsText(file);
+  }
+  );
+
+  registerSW();
+}
+
+window.addEventListener('DOMContentLoaded', handleDOMContentLoaded, false);

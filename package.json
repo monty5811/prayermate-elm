@@ -1,0 +1,30 @@
+{
+  "name": "elm-prayermate",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Dean Montgomery <montgomery.dean97@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "clean-webpack-plugin": "^0.1.17",
+    "css-loader": "^0.28.7",
+    "elm": "^0.18.0",
+    "elm-format": "^0.7.0-exp",
+    "elm-test": "^0.18.9",
+    "elm-webpack-loader": "^4.3.1",
+    "file-loader": "^0.11.2",
+    "html-webpack-plugin": "^2.30.1",
+    "prettier": "^1.7.2",
+    "style-loader": "^0.19.1",
+    "tailwindcss": "^0.4.0",
+    "webpack": "^3.6.0",
+    "webpack-dev-server": "^2.9.1",
+    "workbox-webpack-plugin": "^2.1.2"
+  },
+  "scripts": {
+    "watchelm": "find . -name '*.elm' | entr -c elm make src/Main.elm --warn --output /tmp/tmp.js",
+    "test": "elm-test tests/ --fuzz 10",
+    "build": "webpack",
+    "dev": "WATCH=true webpack-dev-server --watch --color --progress",
+    "generate_fixtures": "python tests/generate_fixtures.py"
+  }
+}
