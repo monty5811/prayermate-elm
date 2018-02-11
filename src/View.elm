@@ -1,6 +1,7 @@
 module View exposing (view)
 
 import Categories.View as Cat
+import CsvConvert
 import Html exposing (Html)
 import Html.Attributes as A
 import Html.Events as E
@@ -47,6 +48,9 @@ mainContent model =
 
         SubjectsList cat subStep ->
             mapRemoteView (Html.map SubjectMsg << Subj.view cat subStep << .categories) model.pm
+
+        CsvConvert csv parsed ->
+            Html.map CsvMsg (CsvConvert.view csv parsed)
 
 
 mapRemoteView : (a -> Html Msg) -> WebData a -> Html Msg

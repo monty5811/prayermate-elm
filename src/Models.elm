@@ -17,12 +17,12 @@ type alias Model =
     }
 
 
-initialModel : { cachedData : String } -> Model
-initialModel flags =
+initialModel : { cachedData : String } -> Step -> Model
+initialModel flags step =
     { pm = NotAsked
     , originalPm = NotAsked
     , cachedData = Util.decodePrayerMate2WebData flags.cachedData
-    , step = LandingPage
+    , step = step
     , currentTime = 0
     }
 
@@ -31,6 +31,7 @@ type Step
     = LandingPage
     | CategoriesList CategoryStep
     | SubjectsList (Editing Category) SubjectStep
+    | CsvConvert String (Maybe (Result (List String) PrayerMate))
 
 
 type CategoryStep

@@ -1,4 +1,4 @@
-module Categories.View exposing (view)
+module Categories.View exposing (exportButton, view)
 
 import Categories.Messages exposing (..)
 import DragDrop
@@ -22,7 +22,7 @@ view step data =
         ]
 
 
-exportButton : PrayerMate -> Html Msg
+exportButton : PrayerMate -> Html msg
 exportButton data =
     Html.a
         [ A.href <| exportb64 data

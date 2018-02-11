@@ -1,27 +1,46 @@
 module Main exposing (main)
 
 import Categories.Update as Cat
-import Html exposing (Html)
+import CsvConvert
 import Http
 import Messages exposing (Msg(..))
 import Models exposing (..)
+import Navigation
 import Ports exposing (fileContentRead, fileSelected)
 import PrayermateModels exposing (..)
 import RemoteData exposing (RemoteData(..), WebData)
+import Route
 import Subjects.Update as Subj
 import Time
+import UrlParser
 import Util
 import View exposing (view)
 
 
 main : Program Flags Model Msg
 main =
-    Html.programWithFlags
-        { init = \f -> ( initialModel f, Cmd.none )
+    Navigation.programWithFlags
+        UrlChange
+        { init = init
         , update = update
         , view = view
         , subscriptions = subscriptions
         }
+
+
+init : Flags -> Navigation.Location -> ( Model, Cmd Msg )
+init flags loc =
+    let
+        page =
+            location2step loc
+    in
+    ( initialModel flags page, Cmd.none )
+
+
+location2step : Navigation.Location -> Step
+location2step location =
+    UrlParser.parsePath Route.route location
+        |> Maybe.withDefault LandingPage
 
 
 type alias Flags =
@@ -64,6 +83,10 @@ updateHelp : Msg -> Model -> ( Model, Cmd Msg )
 updateHelp msg model =
     case msg of
         NoOp ->
+            ( model, Cmd.none )
+
+        UrlChange loc ->
+            -- ignore for now
             ( model, Cmd.none )
 
         LoadPreviousSession ->
@@ -128,6 +151,18 @@ updateHelp msg model =
               }
             , Cmd.map SubjectMsg cmd
             )
+
+        CsvMsg subMsg ->
+            case model.step of
+                CsvConvert csv _ ->
+                    let
+                        ( raw, parsed ) =
+                            CsvConvert.update subMsg model.currentTime csv
+                    in
+                    ( { model | step = CsvConvert raw (Just parsed) }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
 
         ReceiveTime t ->
             ( { model | currentTime = t }, Cmd.none )

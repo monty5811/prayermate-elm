@@ -27,7 +27,7 @@ redButton attrs nodes =
 
 greyButton : List (Html.Attribute msg) -> List (Html msg) -> Html msg
 greyButton attrs nodes =
-    button (A.class "bg-grey hover:bg-grey-dark" :: attrs) nodes
+    rawButton (A.class "bg-grey hover:bg-grey-dark" :: attrs) nodes
 
 
 invertedButton : List (Html.Attribute msg) -> List (Html msg) -> Html msg

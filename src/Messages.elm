@@ -1,6 +1,8 @@
 module Messages exposing (..)
 
 import Categories.Messages as Cat
+import CsvConvert
+import Navigation exposing (Location)
 import PrayermateModels exposing (..)
 import RemoteData exposing (RemoteData(..), WebData)
 import Subjects.Messages as Subj
@@ -16,4 +18,6 @@ type Msg
     | FileRead { contents : String, filename : String }
     | CategoryMsg Cat.Msg
     | SubjectMsg Subj.Msg
+    | CsvMsg CsvConvert.Msg
     | ReceiveTime Time.Time
+    | UrlChange Location
