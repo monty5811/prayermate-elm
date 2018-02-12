@@ -15,7 +15,7 @@ type Msg
     | LoadPreviousSession
     | ReceivePrayerMate (WebData PrayerMate)
     | FileSelected String
-    | FileRead { contents : String, filename : String }
+    | FileRead { contents : String, filename : String, id : String }
     | CategoryMsg Cat.Msg
     | SubjectMsg Subj.Msg
     | CsvMsg CsvConvert.Msg

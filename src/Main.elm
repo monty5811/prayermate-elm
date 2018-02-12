@@ -104,18 +104,26 @@ updateHelp msg model =
         FileSelected id ->
             ( model, fileSelected id )
 
-        FileRead { contents, filename } ->
-            let
-                pm =
-                    Util.decodePrayerMate2WebData contents
-            in
-            ( { model
-                | pm = pm
-                , originalPm = pm
-                , step = initialCategoriesStep
-              }
-            , Cmd.none
-            )
+        FileRead { contents, filename, id } ->
+            case id of
+                "uploadPMFile" ->
+                    let
+                        pm =
+                            Util.decodePrayerMate2WebData contents
+                    in
+                    ( { model
+                        | pm = pm
+                        , originalPm = pm
+                        , step = initialCategoriesStep
+                      }
+                    , Cmd.none
+                    )
+
+                "uploadCsvFile" ->
+                    handleCsvMsg (CsvConvert.InputChanged contents) model
+
+                _ ->
+                    ( model, Cmd.none )
 
         ReceivePrayerMate pm ->
             ( { model | pm = pm, originalPm = pm }, Cmd.none )
@@ -153,19 +161,23 @@ updateHelp msg model =
             )
 
         CsvMsg subMsg ->
-            case model.step of
-                CsvConvert csv _ ->
-                    let
-                        ( raw, parsed ) =
-                            CsvConvert.update subMsg model.currentTime csv
-                    in
-                    ( { model | step = CsvConvert raw (Just parsed) }, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
+            handleCsvMsg subMsg model
 
         ReceiveTime t ->
             ( { model | currentTime = t }, Cmd.none )
+
+
+handleCsvMsg subMsg model =
+    case model.step of
+        CsvConvert csv _ ->
+            let
+                ( raw, parsed, cmd ) =
+                    CsvConvert.update subMsg model.currentTime csv
+            in
+            ( { model | step = CsvConvert raw (Just parsed) }, Cmd.map CsvMsg cmd )
+
+        _ ->
+            ( model, Cmd.none )
 
 
 updateCategories : List Category -> PrayerMate -> PrayerMate

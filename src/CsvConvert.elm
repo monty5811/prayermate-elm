@@ -1,10 +1,12 @@
-module CsvConvert exposing (Msg, update, view)
+module CsvConvert exposing (Msg(InputChanged), parseCsvData, update, view)
 
 import Categories.View exposing (exportButton)
 import Csv
 import Html exposing (Html)
 import Html.Attributes as A
 import Html.Events as E
+import Json.Decode
+import Ports exposing (fileSelected)
 import PrayermateModels exposing (Card, Category, PrayerMate, Subject)
 import Time
 import Time.Format
@@ -14,13 +16,17 @@ import Views exposing (defaultGridOptions)
 
 type Msg
     = InputChanged String
+    | FileSelected String
 
 
-update : Msg -> Time.Time -> String -> ( String, Result (List String) PrayerMate )
+update : Msg -> Time.Time -> String -> ( String, Result (List String) PrayerMate, Cmd Msg )
 update msg currentTime csv =
     case msg of
         InputChanged newCsv ->
-            ( newCsv, parseCsvData currentTime newCsv )
+            ( newCsv, parseCsvData currentTime newCsv, Cmd.none )
+
+        FileSelected id ->
+            ( csv, parseCsvData currentTime csv, fileSelected id )
 
 
 view : String -> Maybe (Result (List String) PrayerMate) -> Html Msg
@@ -29,8 +35,18 @@ view raw parsed =
         [ Html.h2 [] [ Html.text "CSV Convertor" ]
         , export parsed
         , Html.br [] []
-        , Html.p [] [ Html.text "Paste some csv data, there should be no header row and you should have three columns: 'category, subject, prayer content'" ]
+        , Html.p [] [ Html.text "Paste some csv data, or upload a .csv file, there should be no header row and you should have three columns: 'category, subject, prayer content'" ]
+        , Html.ul []
+            [ Html.li [] [ Html.text "The last column is optional" ]
+            , Html.li [] [ Html.text "If you want to paste data, open the file in a text editor (e.g. notepad) and copy from there as spreadsheet apps may give you tab-separated values instead - which won't work" ]
+            ]
         , Html.br [] []
+        , Html.input
+            [ A.type_ "file"
+            , A.id "uploadCsvFile"
+            , E.on "change" (Json.Decode.succeed <| FileSelected "uploadCsvFile")
+            ]
+            []
         , Views.gridWithOptions
             { defaultGridOptions | maxCols = 2 }
             []
@@ -103,7 +119,10 @@ cardView card =
             Html.text ""
 
         Just content ->
-            Html.li [] [ Html.text content ]
+            if content == "" then
+                Html.text ""
+            else
+                Html.li [] [ Html.text content ]
 
 
 parseCsvData : Time.Time -> String -> Result (List String) PrayerMate
@@ -131,10 +150,16 @@ addSubject : Time.Time -> List String -> List Category -> List Category
 addSubject currentTime raw cats =
     case raw of
         [ cat, sub, content ] ->
+            -- good match
             addNew currentTime cats cat sub content
 
         cat :: sub :: content :: _ ->
+            -- ignore extra columns at end
             addNew currentTime cats cat sub content
+
+        [ cat, sub ] ->
+            -- no content, just use blank
+            addNew currentTime cats cat sub ""
 
         _ ->
             -- Invalid, ignore by returning categories as are
