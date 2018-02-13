@@ -1,3 +1,5 @@
+[![Build Status](https://semaphoreci.com/api/v1/monty5811/prayermate-elm/branches/master/badge.svg)](https://semaphoreci.com/monty5811/prayermate-elm)
+
 This is an _unofficial_ web client for PrayerMate.
 
 <img src="/screenshot.png?raw=true">
@@ -8,7 +10,7 @@ https://twitter.com/andygeers/status/908439768643641344
 ## Features
 
  * Quickly edit your PrayerMate data
- * Drag and drop interface 
+ * Drag and drop interface
  * Purely client side - your data is never sent to a server
  * Automatically saves your current state in case you accidentally clsoe the tab
  * Get started quickly with some demo data
