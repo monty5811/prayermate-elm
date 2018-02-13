@@ -1,4 +1,20 @@
-module Views exposing (..)
+module Views
+    exposing
+        ( button
+        , defaultGridOptions
+        , defaultKanBanOptions
+        , form
+        , greenButton
+        , greyButton
+        , grid
+        , gridWithOptions
+        , invertedButton
+        , kanban
+        , kanbanWithOptions
+        , redButton
+        , textArea
+        , textInput
+        )
 
 import Html exposing (Html)
 import Html.Attributes as A
@@ -27,7 +43,7 @@ redButton attrs nodes =
 
 greyButton : List (Html.Attribute msg) -> List (Html msg) -> Html msg
 greyButton attrs nodes =
-    rawButton (A.class "bg-grey hover:bg-grey-dark" :: attrs) nodes
+    button (A.class "bg-grey hover:bg-grey-dark" :: attrs) nodes
 
 
 invertedButton : List (Html.Attribute msg) -> List (Html msg) -> Html msg

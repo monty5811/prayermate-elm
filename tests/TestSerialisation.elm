@@ -5,7 +5,24 @@ import Fixtures
 import Fuzz exposing (Fuzzer)
 import Json.Decode as Decode
 import Json.Encode as Encode
-import PrayermateModels exposing (..)
+import Prayermate
+    exposing
+        ( Card
+        , Category
+        , Feed
+        , PrayerMate
+        , Subject
+        , decodeCard
+        , decodeCategory
+        , decodeFeed
+        , decodePrayerMate
+        , decodeSubject
+        , encodeCard
+        , encodeCategory
+        , encodeFeed
+        , encodePrayerMate
+        , encodeSubject
+        )
 import Test exposing (Test, describe, fuzz, test)
 
 

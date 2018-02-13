@@ -2,17 +2,15 @@ module Subjects.Update
     exposing
         ( deleteSubject
         , maybeAddSubject
-        , replaceItem
         , update
         )
 
-import Editing exposing (..)
-import Models exposing (CategoryStep(ViewCats), Step(..), SubjectStep(..), initialCategoriesStep)
-import PrayermateModels exposing (..)
+import Editing exposing (Editing(Editing))
+import Models exposing (Step(..), SubjectStep(..), initialCategoriesStep)
+import Prayermate exposing (Category, Subject, newCard, newSubject)
 import RemoteData exposing (WebData)
-import Subjects.Messages exposing (..)
+import Subjects.Messages exposing (Msg(..))
 import Time
-import Time.Format
 import Util
 
 
@@ -89,7 +87,7 @@ update currentTime msg step cats =
         CloseList ->
             case step of
                 SubjectsList (Editing origCat modifiedCat) _ ->
-                    ( initialCategoriesStep, RemoteData.map (replaceItem origCat modifiedCat) cats, Cmd.none )
+                    ( initialCategoriesStep, RemoteData.map (Util.replaceItem origCat modifiedCat) cats, Cmd.none )
 
                 _ ->
                     ( step, cats, Cmd.none )
@@ -160,7 +158,7 @@ update currentTime msg step cats =
                             newList =
                                 cats
                                     |> RemoteData.map (List.map (maybeAddSubject sub2Move newCat))
-                                    |> RemoteData.map (replaceItem originalCat newCurrentCat)
+                                    |> RemoteData.map (Util.replaceItem originalCat newCurrentCat)
                         in
                         ( SubjectsList
                             (Editing newCurrentCat newCurrentCat)
@@ -198,10 +196,10 @@ update currentTime msg step cats =
 
         EditCardSave ->
             case step of
-                SubjectsList cat (EditSubjectCard (Editing origSub modifSub) (Editing origCard modifCard)) ->
+                SubjectsList cat (EditSubjectCard (Editing origSub _) (Editing origCard modifCard)) ->
                     let
                         newSub =
-                            { origSub | cards = replaceItem origCard modifCard origSub.cards }
+                            { origSub | cards = Util.replaceItem origCard modifCard origSub.cards }
 
                         newCat =
                             Editing.map (replaceSubject origSub newSub) cat
@@ -243,20 +241,7 @@ updateText new rec =
 
 replaceSubject : Subject -> Subject -> Category -> Category
 replaceSubject orig new category =
-    { category | subjects = replaceItem orig new category.subjects }
-
-
-replaceItem : a -> a -> List a -> List a
-replaceItem orig modif categoryList =
-    List.map (replaceItemHelp orig modif) categoryList
-
-
-replaceItemHelp : a -> a -> a -> a
-replaceItemHelp orig modif current =
-    if orig == current then
-        modif
-    else
-        current
+    { category | subjects = Util.replaceItem orig new category.subjects }
 
 
 maybeAddSubject : Subject -> Category -> Category -> Category
@@ -269,20 +254,7 @@ maybeAddSubject sub newCat currentCat =
 
 addNewSubject : Time.Time -> String -> Category -> Category
 addNewSubject currentTime name cat =
-    { cat | subjects = List.append cat.subjects [ newSubject currentTime name ] }
-
-
-newSubject : Time.Time -> String -> Subject
-newSubject currentTime name =
-    { name = name
-    , createdDate = Time.Format.format Util.dateTimeFormat currentTime
-    , lastPrayed = Nothing
-    , schedulingTimestamp = Nothing
-    , syncID = Nothing
-    , priorityLevel = 0
-    , seenCount = 0
-    , cards = [ emptyCard currentTime ]
-    }
+    { cat | subjects = List.append cat.subjects [ newSubject currentTime name Nothing ] }
 
 
 addEmptyCard : Time.Time -> Subject -> Category -> Category
@@ -293,22 +265,9 @@ addEmptyCard currentTime sub cat =
 addEmptyCardHelp : Time.Time -> Subject -> Subject -> Subject
 addEmptyCardHelp currentTime sub2change currentSub =
     if sub2change == currentSub then
-        { currentSub | cards = emptyCard currentTime :: currentSub.cards }
+        { currentSub | cards = newCard currentTime Nothing :: currentSub.cards }
     else
         currentSub
-
-
-emptyCard : Time.Time -> Card
-emptyCard currentTime =
-    { text = Nothing
-    , archived = False
-    , syncID = Nothing
-    , createdDate = Time.Format.format Util.dateTimeFormat currentTime
-    , dayOfTheWeekMask = 0
-    , schedulingMode = 0
-    , lastPrayed = Nothing
-    , seenCount = 0
-    }
 
 
 deleteSubject : Subject -> Category -> Category

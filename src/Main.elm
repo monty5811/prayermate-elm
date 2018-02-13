@@ -4,16 +4,15 @@ import Categories.Update as Cat
 import CsvConvert
 import Http
 import Messages exposing (Msg(..))
-import Models exposing (..)
+import Models exposing (Model, Step(..), decodePrayerMate2WebData, initialCategoriesStep, initialModel)
 import Navigation
 import Ports exposing (fileContentRead, fileSelected)
-import PrayermateModels exposing (..)
+import Prayermate exposing (Category, PrayerMate, decodePrayerMate, encodePrayerMate)
 import RemoteData exposing (RemoteData(..), WebData)
 import Route
 import Subjects.Update as Subj
 import Time
 import UrlParser
-import Util
 import View exposing (view)
 
 
@@ -85,7 +84,7 @@ updateHelp msg model =
         NoOp ->
             ( model, Cmd.none )
 
-        UrlChange loc ->
+        UrlChange _ ->
             -- ignore for now
             ( model, Cmd.none )
 
@@ -104,12 +103,12 @@ updateHelp msg model =
         FileSelected id ->
             ( model, fileSelected id )
 
-        FileRead { contents, filename, id } ->
+        FileRead { contents, id } ->
             case id of
                 "uploadPMFile" ->
                     let
                         pm =
-                            Util.decodePrayerMate2WebData contents
+                            decodePrayerMate2WebData contents
                     in
                     ( { model
                         | pm = pm
@@ -167,6 +166,7 @@ updateHelp msg model =
             ( { model | currentTime = t }, Cmd.none )
 
 
+handleCsvMsg : CsvConvert.Msg -> Model -> ( Model, Cmd Msg )
 handleCsvMsg subMsg model =
     case model.step of
         CsvConvert csv _ ->
@@ -186,7 +186,7 @@ updateCategories cats pm =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.batch
         [ fileContentRead FileRead
         , Time.every Time.second (\t -> ReceiveTime t)

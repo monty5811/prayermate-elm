@@ -1,17 +1,29 @@
 module Util
     exposing
         ( dateTimeFormat
-        , decodePrayerMate2WebData
         , focusInput
+        , replaceItem
+        , toWebData
         )
 
 import Dict
 import Dom
 import Http
-import Json.Decode
-import PrayermateModels exposing (PrayerMate, decodePrayerMate)
 import RemoteData exposing (RemoteData(..), WebData)
 import Task
+
+
+replaceItem : a -> a -> List a -> List a
+replaceItem orig modif categoryList =
+    List.map (replaceItemHelp orig modif) categoryList
+
+
+replaceItemHelp : a -> a -> a -> a
+replaceItemHelp orig modif current =
+    if orig == current then
+        modif
+    else
+        current
 
 
 focusInput : msg -> Cmd msg
@@ -22,14 +34,6 @@ focusInput msg =
 dateTimeFormat : String
 dateTimeFormat =
     "%Y-%m-%dT%H:%M"
-
-
-decodePrayerMate2WebData : String -> WebData PrayerMate
-decodePrayerMate2WebData str =
-    str
-        |> Json.Decode.decodeString decodePrayerMate
-        |> RemoteData.fromResult
-        |> toWebData
 
 
 toWebData : RemoteData e a -> WebData a

@@ -1,8 +1,8 @@
 module Categories.Update exposing (update)
 
-import Categories.Messages exposing (..)
-import DragDrop exposing (Res(..))
-import Editing exposing (..)
+import Categories.Messages exposing (Msg(..))
+import DragDrop exposing (Res(Dragging, DraggingCancelled, Dropped))
+import Editing exposing (Editing(Editing, NoSelected))
 import Models
     exposing
         ( CategoryStep(..)
@@ -10,11 +10,10 @@ import Models
         , SubjectStep(ViewSubjects)
         , initialCategoriesStep
         )
-import PrayermateModels exposing (..)
+import Prayermate exposing (Category, Subject, newCategory)
 import RemoteData exposing (WebData)
 import Subjects.Update as Subj
 import Time
-import Time.Format
 import Util
 
 
@@ -139,7 +138,7 @@ update currentTime msg step cats =
                             DragDrop.update msg_ oldDndModel
                     in
                     case result of
-                        Dragging startCat hoverCat subject ->
+                        Dragging _ _ _ ->
                             ( CategoriesList (ViewCats dndModel), cats, Cmd.none )
 
                         Dropped startCat endCat subject ->
@@ -168,7 +167,7 @@ dropSubject sub startCat destCat catList =
         in
         catList
             |> List.map (Subj.maybeAddSubject sub destCat)
-            |> Subj.replaceItem startCat updatedStartCat
+            |> Util.replaceItem startCat updatedStartCat
 
 
 updateName : String -> Category -> Category
@@ -178,16 +177,7 @@ updateName newText cat =
 
 addNewCategory : Time.Time -> String -> List Category -> List Category
 addNewCategory currentTime name cats =
-    { name = name
-    , createdDate = Time.Format.format Util.dateTimeFormat currentTime
-    , itemsPerSession = 1
-    , visible = True
-    , pinned = False
-    , manualSessionLimit = Nothing
-    , syncID = Nothing
-    , subjects = []
-    }
-        :: cats
+    newCategory currentTime name :: cats
 
 
 deleteCategory : Category -> List Category -> List Category

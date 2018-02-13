@@ -1,10 +1,10 @@
-module Messages exposing (..)
+module Messages exposing (Msg(..))
 
 import Categories.Messages as Cat
 import CsvConvert
 import Navigation exposing (Location)
-import PrayermateModels exposing (..)
-import RemoteData exposing (RemoteData(..), WebData)
+import Prayermate exposing (PrayerMate)
+import RemoteData exposing (WebData)
 import Subjects.Messages as Subj
 import Time
 

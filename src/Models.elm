@@ -1,8 +1,18 @@
-module Models exposing (..)
+module Models
+    exposing
+        ( CategoryStep(..)
+        , Model
+        , Step(..)
+        , SubjectStep(..)
+        , decodePrayerMate2WebData
+        , initialCategoriesStep
+        , initialModel
+        )
 
 import DragDrop
-import Editing exposing (..)
-import PrayermateModels exposing (..)
+import Editing exposing (Editing(Editing))
+import Json.Decode
+import Prayermate exposing (Card, Category, PrayerMate, Subject, decodePrayerMate)
 import RemoteData exposing (RemoteData(..), WebData)
 import Time
 import Util
@@ -21,7 +31,7 @@ initialModel : { cachedData : String } -> Step -> Model
 initialModel flags step =
     { pm = NotAsked
     , originalPm = NotAsked
-    , cachedData = Util.decodePrayerMate2WebData flags.cachedData
+    , cachedData = decodePrayerMate2WebData flags.cachedData
     , step = step
     , currentTime = 0
     }
@@ -53,3 +63,11 @@ type SubjectStep
     | DeleteSubject Subject
     | MoveSubject Subject
     | EditSubjectCard (Editing Subject) (Editing Card)
+
+
+decodePrayerMate2WebData : String -> WebData PrayerMate
+decodePrayerMate2WebData str =
+    str
+        |> Json.Decode.decodeString decodePrayerMate
+        |> RemoteData.fromResult
+        |> Util.toWebData

@@ -22,7 +22,7 @@ original ed =
         NoSelected ->
             Nothing
 
-        Editing orig modified ->
+        Editing orig _ ->
             Just orig
 
 
@@ -32,5 +32,5 @@ modified ed =
         NoSelected ->
             Nothing
 
-        Editing orig modified ->
-            Just modified
+        Editing _ modifiedVal ->
+            Just modifiedVal

@@ -7,7 +7,7 @@ import Html.Attributes as A
 import Html.Events as E
 import Json.Decode
 import Ports exposing (fileSelected)
-import PrayermateModels exposing (Card, Category, PrayerMate, Subject)
+import Prayermate exposing (Card, Category, PrayerMate, Subject)
 import Time
 import Time.Format
 import Util

@@ -1,9 +1,33 @@
-module PrayermateModels exposing (..)
+module Prayermate
+    exposing
+        ( Card
+        , Category
+        , Feed
+        , PrayerMate
+        , Subject
+        , decodeCard
+        , decodeCategory
+        , decodeFeed
+        , decodePrayerMate
+        , decodeSubject
+        , encodeCard
+        , encodeCategory
+        , encodeFeed
+        , encodePrayerMate
+        , encodeSubject
+        , exportb64
+        , newCard
+        , newCategory
+        , newSubject
+        )
 
 import Base64
 import Json.Decode
 import Json.Decode.Pipeline
 import Json.Encode
+import Time
+import Time.Format
+import Util
 
 
 type alias PrayerMate =
@@ -84,6 +108,19 @@ encodeCategory record =
         |> Json.Encode.object
 
 
+newCategory : Time.Time -> String -> Category
+newCategory currentTime name =
+    { name = name
+    , createdDate = Time.Format.format Util.dateTimeFormat currentTime
+    , itemsPerSession = 1
+    , visible = True
+    , pinned = False
+    , manualSessionLimit = Nothing
+    , syncID = Nothing
+    , subjects = []
+    }
+
+
 type alias Subject =
     { name : String
     , createdDate : String
@@ -123,6 +160,19 @@ encodeSubject record =
         |> Json.Encode.object
 
 
+newSubject : Time.Time -> String -> Maybe String -> Subject
+newSubject currentTime name cardText =
+    { name = name
+    , createdDate = Time.Format.format Util.dateTimeFormat currentTime
+    , lastPrayed = Nothing
+    , schedulingTimestamp = Nothing
+    , syncID = Nothing
+    , priorityLevel = 0
+    , seenCount = 0
+    , cards = [ newCard currentTime cardText ]
+    }
+
+
 type alias Card =
     { text : Maybe String
     , archived : Bool
@@ -160,6 +210,19 @@ encodeCard record =
         |> maybeAddStringField "lastPrayed" record.lastPrayed
         |> maybeAddStringField "syncID" record.syncID
         |> Json.Encode.object
+
+
+newCard : Time.Time -> Maybe String -> Card
+newCard currentTime text =
+    { text = text
+    , archived = False
+    , syncID = Nothing
+    , createdDate = Time.Format.format Util.dateTimeFormat currentTime
+    , dayOfTheWeekMask = 0
+    , schedulingMode = 0
+    , lastPrayed = Nothing
+    , seenCount = 0
+    }
 
 
 type alias Feed =

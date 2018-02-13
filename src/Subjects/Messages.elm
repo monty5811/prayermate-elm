@@ -1,6 +1,6 @@
 module Subjects.Messages exposing (Msg(..))
 
-import PrayermateModels exposing (..)
+import Prayermate exposing (Card, Category, Subject)
 
 
 type Msg

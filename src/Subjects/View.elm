@@ -1,13 +1,13 @@
 module Subjects.View exposing (view)
 
-import Editing exposing (..)
+import Editing exposing (Editing(Editing, NoSelected))
 import Html exposing (Html)
 import Html.Attributes as A
 import Html.Events as E
 import Icons
 import Models exposing (SubjectStep(..))
-import PrayermateModels exposing (..)
-import Subjects.Messages exposing (..)
+import Prayermate exposing (Card, Category, Subject)
+import Subjects.Messages exposing (Msg(..))
 import Views as V exposing (defaultGridOptions, defaultKanBanOptions)
 
 
@@ -118,7 +118,7 @@ viewSubjectDelete =
 viewSubjectEditingCard : Subject -> Editing Subject -> Editing Card -> List (Html Msg)
 viewSubjectEditingCard currentSub subWeAreEditing editingCard =
     case ( subWeAreEditing, editingCard ) of
-        ( Editing origSub _, Editing origCard modifiedCard ) ->
+        ( Editing origSub _, Editing _ modifiedCard ) ->
             if currentSub == origSub then
                 [ V.form
                     [ E.onSubmit EditCardSave ]

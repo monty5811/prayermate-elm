@@ -4,7 +4,7 @@ import CsvConvert exposing (parseCsvData)
 import Expect
 import Fixtures
 import Json.Decode as Decode
-import PrayermateModels exposing (..)
+import Prayermate exposing (Card, Category, PrayerMate, Subject, decodePrayerMate)
 import Test exposing (Test, describe, test)
 
 

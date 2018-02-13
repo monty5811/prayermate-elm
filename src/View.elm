@@ -8,8 +8,8 @@ import Html.Events as E
 import Http
 import Json.Decode
 import Messages exposing (Msg(..))
-import Models exposing (..)
-import PrayermateModels exposing (PrayerMate)
+import Models exposing (Model, Step(..))
+import Prayermate exposing (PrayerMate)
 import RemoteData exposing (RemoteData(..), WebData)
 import Subjects.View as Subj
 import Views as V
@@ -96,7 +96,7 @@ landingView cachedData =
 cachedSessionView : WebData PrayerMate -> Html Msg
 cachedSessionView cachedData =
     case cachedData of
-        Success pm ->
+        Success _ ->
             V.button
                 [ A.class "bg-indigo hover:bg-indigo-darker w-full p-4 my-4"
                 , E.onClick LoadPreviousSession

@@ -1,7 +1,7 @@
 module Categories.Messages exposing (Msg(..))
 
 import DragDrop
-import PrayermateModels exposing (Category, Subject)
+import Prayermate exposing (Category, Subject)
 
 
 type Msg
