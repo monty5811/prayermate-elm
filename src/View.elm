@@ -6,10 +6,12 @@ import Html exposing (Html)
 import Html.Attributes as A
 import Html.Events as E
 import Http
+import Icons
 import Json.Decode
+import Markdown
 import Messages exposing (Msg(..))
-import Models exposing (Model, Step(..))
-import Prayermate exposing (PrayerMate)
+import Models exposing (CategoryStep(..), Model, Step(..))
+import Prayermate exposing (PrayerMate, exportb64)
 import RemoteData exposing (RemoteData(..), WebData)
 import Subjects.View as Subj
 import Views as V
@@ -18,23 +20,89 @@ import Views as V
 view : Model -> Html Msg
 view model =
     Html.main_ [ A.class "min-w-screen min-h-screen bg-blue-lightest" ]
-        [ navigation
+        [ navigation model
+        , aboutScreen model.about model.showAbout
         , Html.section [ A.class "w-full h-full p-6" ] [ mainContent model ]
         ]
 
 
-navigation : Html msg
-navigation =
-    Html.ul [ A.class "list-reset flex w-full p-3 bg-grey-dark" ]
+aboutScreen : WebData String -> Bool -> Html Msg
+aboutScreen about show =
+    if show then
+        Html.div [ A.class "fixed z-50 pin overflow-auto bg-black flex" ]
+            [ Html.div [ A.class "fixed shadow-inner max-w-md md:relative pin-b pin-x align-top m-auto justify-end md:justify-center p-8 bg-white md:rounded w-full md:h-auto md:shadow flex flex-col" ]
+                [ aboutText about
+                , Html.a [ E.onClick ToggleAbout, A.class "absolute pin-t pin-r pt-4 px-4 cursor-pointer" ] [ Icons.x ]
+                ]
+            ]
+    else
+        Html.text ""
+
+
+aboutText : WebData String -> Html msg
+aboutText about =
+    case about of
+        Success md ->
+            Markdown.toHtml [ A.class "leading-normal font-sans" ] md
+
+        _ ->
+            Html.text "..."
+
+
+navigation : Model -> Html Msg
+navigation model =
+    Html.ul [ A.class "list-reset flex items-center w-full p-3 bg-grey-dark" ]
         [ Html.li [ A.class "mr-6" ]
-            [ Html.a [ A.class "hover:text-blue-darker" ]
-                [ Html.text "PrayerMate" ]
+            [ Html.a [ A.class "text-white font-bold" ]
+                [ Html.text "Unofficial PrayerMate Editor" ]
             ]
         , Html.li [ A.class "mr-6" ]
-            [ Html.a [ A.class "hover:text-blue-darker" ]
+            [ V.button [ E.onClick ToggleAbout ]
                 [ Html.text "About" ]
             ]
+        , Html.li [ A.class "ml-auto mr-3" ] [ goToKanbanButton model ]
+        , Html.li [ A.class "mr-6" ] [ exportButton model ]
         ]
+
+
+exportButton : Model -> Html msg
+exportButton model =
+    case ( model.step, model.pm ) of
+        ( CategoriesList (ViewCats _), Success pm ) ->
+            exportButtonHelp pm
+
+        ( CsvConvert _ (Just (Ok pm)), _ ) ->
+            exportButtonHelp pm
+
+        ( _, _ ) ->
+            Html.text ""
+
+
+exportButtonHelp : PrayerMate -> Html msg
+exportButtonHelp pm =
+    Html.a
+        [ A.href <| exportb64 pm
+        , A.downloadAs "unofficial_prayemate_export.json"
+        ]
+        [ V.greenButton [] [ Html.text "Export" ] ]
+
+
+goToKanbanButton : Model -> Html Msg
+goToKanbanButton model =
+    case model.step of
+        CsvConvert _ (Just (Ok data)) ->
+            case data.categories of
+                [] ->
+                    V.greyButton [] [ Html.text "Go To Kanban" ]
+
+                _ ->
+                    Html.a
+                        [ E.onClick CSVGoToKanban
+                        ]
+                        [ V.blueButton [] [ Html.text "Go To Kanban " ] ]
+
+        _ ->
+            Html.text ""
 
 
 mainContent : Model -> Html Msg
@@ -44,13 +112,13 @@ mainContent model =
             landingView model.cachedData
 
         CategoriesList catStep ->
-            mapRemoteView (Html.map CategoryMsg << Cat.view catStep) model.pm
+            mapRemoteView (Cat.view catStep) model.pm
 
         SubjectsList cat subStep ->
-            mapRemoteView (Html.map SubjectMsg << Subj.view cat subStep << .categories) model.pm
+            mapRemoteView (Subj.view cat subStep << .categories) model.pm
 
         CsvConvert csv parsed ->
-            Html.map CsvMsg (CsvConvert.view csv parsed)
+            CsvConvert.view csv parsed
 
 
 mapRemoteView : (a -> Html Msg) -> WebData a -> Html Msg

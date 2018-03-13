@@ -1,6 +1,7 @@
 module Views
     exposing
-        ( button
+        ( blueButton
+        , button
         , defaultGridOptions
         , defaultKanBanOptions
         , form
@@ -44,6 +45,11 @@ redButton attrs nodes =
 greyButton : List (Html.Attribute msg) -> List (Html msg) -> Html msg
 greyButton attrs nodes =
     button (A.class "bg-grey hover:bg-grey-dark" :: attrs) nodes
+
+
+blueButton : List (Html.Attribute msg) -> List (Html msg) -> Html msg
+blueButton attrs nodes =
+    button (A.class "bg-blue hover:bg-blue-dark" :: attrs) nodes
 
 
 invertedButton : List (Html.Attribute msg) -> List (Html msg) -> Html msg

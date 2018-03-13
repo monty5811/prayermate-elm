@@ -45,7 +45,7 @@ module.exports = {
         loader: 'file-loader?name=[name].[ext]',
       },
       {
-        test: /\.jpe?g$|\.gif$|\.png$|\.svg$|\.woff$|\.ttf$|\.json$|\.wav$|\.mp3|\.ico$/,
+        test: /\.jpe?g$|\.gif$|\.png$|\.svg$|\.woff$|\.ttf$|\.json$|\.md$|\.wav$|\.mp3|\.ico$/,
         exclude: /node_modules/,
         loader: "file-loader?name=[name].[ext]",
       },

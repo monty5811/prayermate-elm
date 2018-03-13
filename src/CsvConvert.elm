@@ -1,39 +1,22 @@
-module CsvConvert exposing (Msg(InputChanged), parseCsvData, update, view)
+module CsvConvert exposing (parseCsvData, view)
 
-import Categories.View exposing (exportButton)
 import Csv
 import Html exposing (Html)
 import Html.Attributes as A
 import Html.Events as E
 import Json.Decode
-import Ports exposing (fileSelected)
+import Messages exposing (Msg(..))
 import Prayermate exposing (Card, Category, PrayerMate, Subject)
 import Time
 import Time.Format
 import Util
-import Views exposing (defaultGridOptions)
-
-
-type Msg
-    = InputChanged String
-    | FileSelected String
-
-
-update : Msg -> Time.Time -> String -> ( String, Result (List String) PrayerMate, Cmd Msg )
-update msg currentTime csv =
-    case msg of
-        InputChanged newCsv ->
-            ( newCsv, parseCsvData currentTime newCsv, Cmd.none )
-
-        FileSelected id ->
-            ( csv, parseCsvData currentTime csv, fileSelected id )
+import Views as V exposing (defaultGridOptions)
 
 
 view : String -> Maybe (Result (List String) PrayerMate) -> Html Msg
 view raw parsed =
     Html.div []
         [ Html.h2 [] [ Html.text "CSV Convertor" ]
-        , export parsed
         , Html.br [] []
         , Html.p [] [ Html.text "Paste some csv data, or upload a .csv file, there should be no header row and you should have three columns: 'category, subject, prayer content'" ]
         , Html.ul []
@@ -47,36 +30,16 @@ view raw parsed =
             , E.on "change" (Json.Decode.succeed <| FileSelected "uploadCsvFile")
             ]
             []
-        , Views.gridWithOptions
+        , V.gridWithOptions
             { defaultGridOptions | maxCols = 2 }
             []
-            [ Views.textArea
+            [ V.textArea
                 20
-                InputChanged
+                CSVInputChanged
                 raw
             , parsedView parsed
             ]
         ]
-
-
-export : Maybe (Result (List String) PrayerMate) -> Html msg
-export parsed =
-    case parsed of
-        Nothing ->
-            Views.greyButton [ A.class " absolute pin-t pin-r" ] [ Html.text "Download" ]
-
-        Just res ->
-            case res of
-                Err _ ->
-                    Html.text ""
-
-                Ok data ->
-                    case data.categories of
-                        [] ->
-                            Html.text ""
-
-                        _ ->
-                            exportButton data
 
 
 parsedView : Maybe (Result (List String) PrayerMate) -> Html msg

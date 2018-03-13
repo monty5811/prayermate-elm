@@ -5,9 +5,9 @@ import Html exposing (Html)
 import Html.Attributes as A
 import Html.Events as E
 import Icons
+import Messages exposing (Msg(..))
 import Models exposing (SubjectStep(..))
 import Prayermate exposing (Card, Category, Subject)
-import Subjects.Messages exposing (Msg(..))
 import Views as V exposing (defaultGridOptions, defaultKanBanOptions)
 
 
@@ -17,7 +17,7 @@ view category step categories =
         MoveSubject sub2move ->
             Html.div []
                 [ Html.h3 [ A.class "text-center" ] [ Html.text <| "Move " ++ sub2move.name ++ " to a different list:" ]
-                , V.greyButton [ A.class "w-full my-8", E.onClick MoveCancel ] [ Html.text "Cancel Move" ]
+                , V.greyButton [ A.class "w-full my-8", E.onClick SubMoveCancel ] [ Html.text "Cancel Move" ]
                 , V.gridWithOptions { defaultGridOptions | minHeight = 150, gridGap = 20 } [] (List.map viewCat categories)
                 ]
 
@@ -47,7 +47,7 @@ createNewButton step =
 
             _ ->
                 [ V.greenButton
-                    [ E.onClick CreateStart
+                    [ E.onClick SubCreateStart
                     , A.class "w-full"
                     ]
                     [ Html.text "Add New" ]
@@ -56,10 +56,10 @@ createNewButton step =
 
 createNewSubject : String -> List (Html Msg)
 createNewSubject tmpName =
-    [ V.form [ E.onSubmit CreateSave ]
-        [ V.textInput CreateUpdateName tmpName
-        , V.greenButton [ E.onClick CreateSave ] [ Html.text "Create" ]
-        , V.greyButton [ E.onClick CreateCancel ] [ Html.text "Cancel" ]
+    [ V.form [ E.onSubmit SubCreateSave ]
+        [ V.textInput SubCreateUpdateName tmpName
+        , V.greenButton [ E.onClick SubCreateSave ] [ Html.text "Create" ]
+        , V.greyButton [ E.onClick SubCreateCancel ] [ Html.text "Cancel" ]
         ]
     ]
 
@@ -67,7 +67,7 @@ createNewSubject tmpName =
 viewCat : Category -> Html Msg
 viewCat cat =
     Html.div
-        [ E.onClick <| MoveComplete cat
+        [ E.onClick <| SubMoveComplete cat
         , A.class "p-4 bg-blue hover:bg-blue-dark cursor-pointer text-white font-bold text-center text-3xl"
         ]
         [ Html.text cat.name ]
@@ -110,8 +110,8 @@ viewSubject step sub =
 
 viewSubjectDelete : List (Html Msg)
 viewSubjectDelete =
-    [ V.redButton [ E.onClick DeleteConfirm ] [ Html.text "Delete" ]
-    , V.greyButton [ E.onClick DeleteCancel ] [ Html.text "Cancel" ]
+    [ V.redButton [ E.onClick SubDeleteConfirm ] [ Html.text "Delete" ]
+    , V.greyButton [ E.onClick SubDeleteCancel ] [ Html.text "Cancel" ]
     ]
 
 
@@ -136,9 +136,9 @@ viewSubjectEditingCard currentSub subWeAreEditing editingCard =
 
 viewSubjectNoEdit : Subject -> List (Html Msg)
 viewSubjectNoEdit sub =
-    [ V.invertedButton [ E.onClick <| EditStart sub ] [ Icons.edit ]
-    , V.invertedButton [ E.onClick <| DeleteStart sub ] [ Icons.x ]
-    , V.invertedButton [ E.onClick <| MoveStart sub ] [ Icons.move ]
+    [ V.invertedButton [ E.onClick <| SubEditStart sub ] [ Icons.edit ]
+    , V.invertedButton [ E.onClick <| SubDeleteStart sub ] [ Icons.x ]
+    , V.invertedButton [ E.onClick <| SubMoveStart sub ] [ Icons.move ]
     , Html.h3 [ A.class "pb-2" ] [ Html.text sub.name ]
     , if List.length sub.cards > 0 then
         Html.div [] <| List.map (viewCard sub) sub.cards
@@ -150,10 +150,10 @@ viewSubjectNoEdit sub =
 viewSubjectEdit : Subject -> List (Html Msg)
 viewSubjectEdit modifiedSub =
     [ V.form
-        [ E.onSubmit EditSave ]
-        [ V.textInput EditUpdateName modifiedSub.name
-        , V.greenButton [ E.onClick EditSave ] [ Html.text "Save" ]
-        , V.greyButton [ E.onClick EditCancel ] [ Html.text "Cancel" ]
+        [ E.onSubmit SubEditSave ]
+        [ V.textInput SubEditUpdateName modifiedSub.name
+        , V.greenButton [ E.onClick SubEditSave ] [ Html.text "Save" ]
+        , V.greyButton [ E.onClick SubEditCancel ] [ Html.text "Cancel" ]
         ]
     ]
 

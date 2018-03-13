@@ -24,6 +24,8 @@ type alias Model =
     , cachedData : WebData PrayerMate
     , step : Step
     , currentTime : Time.Time
+    , showAbout : Bool
+    , about : WebData String
     }
 
 
@@ -34,6 +36,8 @@ initialModel flags step =
     , cachedData = decodePrayerMate2WebData flags.cachedData
     , step = step
     , currentTime = 0
+    , showAbout = False
+    , about = NotAsked
     }
 
 

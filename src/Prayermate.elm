@@ -5,20 +5,33 @@ module Prayermate
         , Feed
         , PrayerMate
         , Subject
+        , addEmptyCard
+        , addNewCategory
+        , addNewSubject
         , decodeCard
         , decodeCategory
         , decodeFeed
         , decodePrayerMate
         , decodeSubject
+        , deleteCategory
+        , deleteSubject
+        , dropSubject
         , encodeCard
         , encodeCategory
         , encodeFeed
         , encodePrayerMate
         , encodeSubject
         , exportb64
+        , maybeAddSubject
         , newCard
         , newCategory
         , newSubject
+        , replaceCategory
+        , replaceSubject
+        , updateCategories
+        , updateCategory
+        , updateName
+        , updateText
         )
 
 import Base64
@@ -279,3 +292,106 @@ encodeMaybe encoder ms =
 
         Just s ->
             encoder s
+
+
+
+-- Helpers
+
+
+updateCategories : List Category -> PrayerMate -> PrayerMate
+updateCategories cats pm =
+    { pm | categories = cats }
+
+
+updateName : String -> { a | name : String } -> { a | name : String }
+updateName new rec =
+    { rec | name = new }
+
+
+updateText : String -> { a | text : Maybe String } -> { a | text : Maybe String }
+updateText new rec =
+    { rec | text = Just new }
+
+
+replaceSubject : Subject -> Subject -> Category -> Category
+replaceSubject orig new category =
+    { category | subjects = Util.replaceItem orig new category.subjects }
+
+
+replaceCategory : Category -> Category -> PrayerMate -> PrayerMate
+replaceCategory orig new pm =
+    { pm | categories = Util.replaceItem orig new pm.categories }
+
+
+maybeAddSubject : Subject -> Category -> Category -> Category
+maybeAddSubject sub newCat currentCat =
+    if newCat == currentCat then
+        { currentCat | subjects = List.append currentCat.subjects [ sub ] }
+    else
+        currentCat
+
+
+addNewSubject : Time.Time -> String -> Category -> Category
+addNewSubject currentTime name cat =
+    { cat | subjects = List.append cat.subjects [ newSubject currentTime name Nothing ] }
+
+
+addEmptyCard : Time.Time -> Subject -> Category -> Category
+addEmptyCard currentTime sub cat =
+    { cat | subjects = List.map (addEmptyCardHelp currentTime sub) cat.subjects }
+
+
+addEmptyCardHelp : Time.Time -> Subject -> Subject -> Subject
+addEmptyCardHelp currentTime sub2change currentSub =
+    if sub2change == currentSub then
+        { currentSub | cards = newCard currentTime Nothing :: currentSub.cards }
+    else
+        currentSub
+
+
+deleteSubject : Subject -> Category -> Category
+deleteSubject sub category =
+    { category | subjects = deleteSubjectHelp sub category.subjects }
+
+
+deleteSubjectHelp : Subject -> List Subject -> List Subject
+deleteSubjectHelp sub subjects =
+    List.filter (\x -> x /= sub) subjects
+
+
+dropSubject : Subject -> Category -> Category -> List Category -> List Category
+dropSubject sub startCat destCat catList =
+    if startCat == destCat then
+        -- short circuit if start and end are the same
+        catList
+    else
+        let
+            updatedStartCat =
+                deleteSubject sub startCat
+        in
+        catList
+            |> List.map (maybeAddSubject sub destCat)
+            |> Util.replaceItem startCat updatedStartCat
+
+
+addNewCategory : Time.Time -> String -> PrayerMate -> PrayerMate
+addNewCategory currentTime name pm =
+    { pm | categories = newCategory currentTime name :: pm.categories }
+
+
+deleteCategory : Category -> PrayerMate -> PrayerMate
+deleteCategory cat pm =
+    { pm | categories = List.filter (\x -> x /= cat) pm.categories }
+
+
+updateCategory : Category -> Category -> List Category -> List Category
+updateCategory origCat newCat categories =
+    List.map (updateCategoryHelp origCat newCat) categories
+
+
+updateCategoryHelp : Category -> Category -> Category -> Category
+updateCategoryHelp origCat modCat iterCat =
+    if origCat == iterCat then
+        modCat
+    else
+        iterCat
