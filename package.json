@@ -25,6 +25,7 @@
     "watchelm-test": "find . -name '*.elm' | entr -c yarn test",
     "test": "elm-test tests/ --fuzz 100",
     "build": "webpack && cp src/_redirects public/_redirects",
+    "build:functions": "webpack --config webpack.config.functions.js",
     "dev": "WATCH=true webpack-dev-server --watch --color --progress",
     "generate_fixtures": "python tests/generate_fixtures.py",
     "format:elm": "elm-format --yes src tests",
