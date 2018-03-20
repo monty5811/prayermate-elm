@@ -23,8 +23,10 @@ if (process.env.WATCH) {
 module.exports = {
   entry: {csv: './src/csv.js'},
   plugins: plugins,
+  target: 'node',
   module: {
     loaders: [
+      { test: /\.js$/, exclude: /node_modules/, loader: "babel-loader" },
       {
         test: /\.html$/,
         exclude: /node_modules/,
@@ -52,6 +54,7 @@ module.exports = {
   },
   output: {
     filename: '[name].js',
+    libraryTarget: 'commonjs',
     path: path.resolve(__dirname, 'functions')
   },
   devServer: {

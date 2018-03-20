@@ -1,7 +1,7 @@
 const Elm = require('./CSVWorker.elm');
 
 exports.handler = function(event, context, callback) {
-  const app = Elm.csvWorker({
+  const app = Elm.Main.worker({
     event: event,
     now: Date.now(),
   });
@@ -19,4 +19,4 @@ exports.handler = function(event, context, callback) {
       });
     }
   });
-};
+}

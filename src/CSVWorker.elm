@@ -1,4 +1,4 @@
-port module Main exposing (csvWorker)
+port module Main exposing (main)
 
 import Base64
 import CsvConvert exposing (parseCsvData)
@@ -9,8 +9,8 @@ import Platform
 import Prayermate exposing (encodePrayerMate)
 
 
-csvWorker : Platform.Program Flags () msg
-csvWorker =
+main : Platform.Program Flags () msg
+main =
     Platform.programWithFlags
         { init = init
         , update = \_ _ -> ( (), Cmd.none )

@@ -1,4 +1,4 @@
 [build]
-  functions = "function"
+  functions = "functions"
   publish = "public"
-  command = "yarn build build:functions"
+  command = "yarn build;yarn build:functions"
