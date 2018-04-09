@@ -1,7 +1,6 @@
 const Elm = require('./Main.elm');
 
 require('./about.md');
-require('./test_data.json');
 require('../node_modules/tailwindcss/dist/tailwind.min.css');
 
 const LOCAL_STORAGE_KEY = 'pm-cached-value-v1';

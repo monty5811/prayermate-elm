@@ -1,31 +1,17 @@
 const path = require('path');
 const webpack = require("webpack");
-const CleanWebpackPlugin = require('clean-webpack-plugin');
-
-defaultPlugins = [
-  new CleanWebpackPlugin(['functions']),
-]
 
 if (process.env.WATCH) {
   elmLoader = 'elm-webpack-loader?debug=true';
-  plugins = defaultPlugins;
 } else {
   elmLoader = 'elm-webpack-loader';
-  plugins = defaultPlugins.concat([
-    new webpack.optimize.UglifyJsPlugin({
-      compress: {
-        warnings: false
-      }
-    }),
-  ]);
 }
 
 module.exports = {
   entry: {csv: './src/csv.js'},
-  plugins: plugins,
   target: 'node',
   module: {
-    loaders: [
+    rules: [
       { test: /\.js$/, exclude: /node_modules/, loader: "babel-loader" },
       {
         test: /\.html$/,
