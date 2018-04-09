@@ -9,6 +9,7 @@ defaultPlugins = [
   new HtmlWebpackPlugin(
     {
       title: 'unofficial prayermate',
+      template: 'src/index.tmpl',
     }
   ),
 ]

@@ -58,6 +58,17 @@ function handleDOMContentLoaded() {
     reader.readAsText(file);
   });
 
+  app.ports.openDropboxChooser.subscribe(function openDb() {
+    const options = {
+      success: function (files) {app.ports.dropboxLinkRead.send(files[0].link)},
+      linkType: 'direct',
+      multiselect: false,
+      extensions: ['.json', ],
+      folderselect: false,
+    };
+    Dropbox.choose(options)
+  });
+
   registerSW();
 }
 

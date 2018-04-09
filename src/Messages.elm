@@ -1,6 +1,7 @@
 module Messages exposing (Msg(..))
 
 import DragDrop
+import Json.Encode
 import Navigation exposing (Location)
 import Prayermate exposing (Card, Category, PrayerMate, Subject)
 import RemoteData exposing (WebData)
@@ -14,10 +15,12 @@ type Msg
     | ReceiveTime Time.Time
     | UrlChange Location
     | LoadDemoData
+    | LoadDropBoxData
     | LoadPreviousSession
     | ReceivePrayerMate (WebData PrayerMate)
     | FileSelected String
     | FileRead { contents : String, filename : String, id : String }
+    | ReceiveDropboxLink Json.Encode.Value
     | CatOpen Category
     | CatEditStart Category
     | CatEditUpdateName String

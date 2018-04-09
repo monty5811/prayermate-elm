@@ -139,34 +139,42 @@ mapRemoteView fn remote =
 
 landingView : WebData PrayerMate -> Html Msg
 landingView cachedData =
-    Html.div []
+    Html.div [ A.class "mx-auto w-1/2 my-8 p-4 bg-grey-dark" ]
         [ cachedSessionView cachedData
-        , V.grid []
-            [ V.button
-                [ A.class "h-full w-full bg-blue" ]
-                [ Html.p [] [ Html.text "Upload a .json file exported from PrayerMate" ]
-                , Html.input
-                    [ A.type_ "file"
-                    , A.id "uploadPMFile"
-                    , E.on "change" (Json.Decode.succeed <| FileSelected "uploadPMFile")
-                    ]
-                    []
+        , landingButton
+            [ A.class "bg-blue" ]
+            [ Html.p [] [ Html.text "Upload a .json file exported from PrayerMate" ]
+            , Html.input
+                [ A.type_ "file"
+                , A.id "uploadPMFile"
+                , E.on "change" (Json.Decode.succeed <| FileSelected "uploadPMFile")
                 ]
-            , V.button
-                [ A.class "h-full w-full bg-blue hover:bg-blue-dark"
-                , E.onClick LoadDemoData
-                ]
-                [ Html.text "Use Demo Data" ]
+                []
             ]
+        , landingButton
+            [ A.class "bg-blue hover:bg-blue-dark"
+            , E.onClick LoadDropBoxData
+            ]
+            [ Html.text "Choose a .json file from Dropbox" ]
+        , landingButton
+            [ A.class "bg-blue hover:bg-blue-dark"
+            , E.onClick LoadDemoData
+            ]
+            [ Html.text "Use Demo Data" ]
         ]
+
+
+landingButton : List (Html.Attribute msg) -> List (Html msg) -> Html msg
+landingButton attrs nodes =
+    V.button ([ A.class "w-full py-4 my-2" ] ++ attrs) nodes
 
 
 cachedSessionView : WebData PrayerMate -> Html Msg
 cachedSessionView cachedData =
     case cachedData of
         Success _ ->
-            V.button
-                [ A.class "bg-indigo hover:bg-indigo-darker w-full p-4 my-4"
+            landingButton
+                [ A.class "bg-indigo hover:bg-indigo-darker"
                 , E.onClick LoadPreviousSession
                 ]
                 [ Html.p [ A.class "my-2" ] [ Html.text "It looks like you have a previous session, click here to restore it" ]

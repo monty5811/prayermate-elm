@@ -4,7 +4,7 @@ import Http
 import Messages exposing (Msg(..))
 import Models exposing (Model, Step(..), decodePrayerMate2WebData, initialCategoriesStep, initialModel)
 import Navigation
-import Ports exposing (fileContentRead, fileSelected)
+import Ports exposing (dropboxLinkRead, fileContentRead, fileSelected)
 import Prayermate exposing (PrayerMate, encodePrayerMate)
 import RemoteData exposing (RemoteData(..), WebData)
 import Route
@@ -80,6 +80,7 @@ subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
         [ fileContentRead FileRead
+        , dropboxLinkRead ReceiveDropboxLink
         , Time.every Time.second (\t -> ReceiveTime t)
         ]
 

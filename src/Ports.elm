@@ -1,4 +1,4 @@
-port module Ports exposing (fileContentRead, fileSelected, saveData)
+port module Ports exposing (dropboxLinkRead, fileContentRead, fileSelected, openDropboxChooser, saveData)
 
 import Json.Encode
 
@@ -10,3 +10,9 @@ port fileContentRead : ({ contents : String, filename : String, id : String } ->
 
 
 port saveData : Json.Encode.Value -> Cmd msg
+
+
+port openDropboxChooser : () -> Cmd msg
+
+
+port dropboxLinkRead : (Json.Encode.Value -> msg) -> Sub msg

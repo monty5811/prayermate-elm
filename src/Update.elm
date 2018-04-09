@@ -4,10 +4,11 @@ import CsvConvert exposing (parseCsvData)
 import DragDrop exposing (Res(Dragging, DraggingCancelled, Dropped))
 import Editing exposing (Editing(Editing, NoSelected))
 import Http
+import Json.Decode
 import Messages exposing (Msg(..))
 import Models exposing (..)
 import Navigation
-import Ports exposing (fileSelected)
+import Ports exposing (fileSelected, openDropboxChooser)
 import Prayermate exposing (..)
 import RemoteData exposing (RemoteData(..), WebData)
 import Util
@@ -42,6 +43,9 @@ update msg model =
 
         LoadDemoData ->
             ( { model | step = initialCategoriesStep }, loadDemoData )
+
+        LoadDropBoxData ->
+            ( model, openDropboxChooser () )
 
         ReceivePrayerMate pm ->
             ( { model | pm = pm, originalPm = pm }
@@ -78,6 +82,14 @@ update msg model =
 
                 _ ->
                     ( model, Cmd.none )
+
+        ReceiveDropboxLink value ->
+            case Json.Decode.decodeValue Json.Decode.string value of
+                Err _ ->
+                    ( model, Cmd.none )
+
+                Ok url ->
+                    ( { model | step = initialCategoriesStep }, fetchDropboxData url )
 
         CSVInputChanged newCsv ->
             case model.step of
@@ -528,5 +540,12 @@ update msg model =
 loadDemoData : Cmd Msg
 loadDemoData =
     Http.get "test_data.json" decodePrayerMate
+        |> RemoteData.sendRequest
+        |> Cmd.map ReceivePrayerMate
+
+
+fetchDropboxData : String -> Cmd Msg
+fetchDropboxData url =
+    Http.get url decodePrayerMate
         |> RemoteData.sendRequest
         |> Cmd.map ReceivePrayerMate
