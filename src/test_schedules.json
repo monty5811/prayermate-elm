@@ -1,0 +1,255 @@
+{
+    "Categories": [
+        {
+            "name": "test",
+            "createdDate": "2018-01-04T17:03",
+            "itemsPerSession": 1,
+            "visible": true,
+            "pinned": false,
+            "manualSessionLimit": null,
+            "syncID": "c+98F6BCD4621D373CADE4E832627B4F6|+1",
+            "subjects": [
+                {
+                    "name": "Test scheduler Sunday",
+                    "createdDate": "2018-04-16T10:13",
+                    "syncID": "-LACikX_5laf6bY2W6W2",
+                    "priorityLevel": 0,
+                    "seenCount": 0,
+                    "cards": [
+                        {
+                            "archived": false,
+                            "syncID": "-LACikXt_FocHn5z73kq",
+                            "autoArchiveDate": "2018-04-30T00:00",
+                            "createdDate": "2018-04-16T10:13",
+                            "dayOfTheWeekMask": 1,
+                            "schedulingMode": 1,
+                            "seenCount": 0
+                        }
+                    ]
+                },
+                {
+                    "name": "Test schedule monday",
+                    "createdDate": "2018-04-16T16:11",
+                    "syncID": "-LAE-nCquBtyahBV5m0I",
+                    "priorityLevel": 0,
+                    "seenCount": 0,
+                    "cards": [
+                        {
+                            "archived": false,
+                            "syncID": "-LAE-nDFeP7pQiQmK2Kd",
+                            "createdDate": "2018-04-16T16:11",
+                            "dayOfTheWeekMask": 2,
+                            "schedulingMode": 1,
+                            "seenCount": 0
+                        }
+                    ]
+                },
+                {
+                    "name": "Test schedule all not sun",
+                    "createdDate": "2018-04-16T16:12",
+                    "syncID": "-LAE-uK72U6jY_M9QRsT",
+                    "priorityLevel": 0,
+                    "seenCount": 0,
+                    "cards": [
+                        {
+                            "archived": false,
+                            "syncID": "-LAE-uKKcLVcEqXqk3f8",
+                            "createdDate": "2018-04-16T16:12",
+                            "dayOfTheWeekMask": 126,
+                            "schedulingMode": 1,
+                            "seenCount": 0
+                        }
+                    ]
+                },
+                {
+                    "name": "Test Sunday friday ",
+                    "createdDate": "2018-04-16T16:15",
+                    "syncID": "-LAE0VMsIjWuOdx2ePRR",
+                    "priorityLevel": 0,
+                    "seenCount": 0,
+                    "cards": [
+                        {
+                            "archived": false,
+                            "syncID": "-LAE0VNaPmXm8nWqxHfx",
+                            "createdDate": "2018-04-16T16:15",
+                            "dayOfTheWeekMask": 33,
+                            "schedulingMode": 1,
+                            "seenCount": 0
+                        }
+                    ]
+                },
+                {
+                    "name": "Saturday",
+                    "createdDate": "2018-04-16T16:21",
+                    "syncID": "-LAE1yYInyPj4BsgvC1-",
+                    "priorityLevel": 0,
+                    "seenCount": 0,
+                    "cards": [
+                        {
+                            "archived": false,
+                            "syncID": "-LAE1yYkUVjH1KQCY0HM",
+                            "createdDate": "2018-04-16T16:21",
+                            "dayOfTheWeekMask": 64,
+                            "schedulingMode": 1,
+                            "seenCount": 0
+                        }
+                    ]
+                },
+                {
+                    "name": "Test tuesday",
+                    "createdDate": "2018-04-16T16:47",
+                    "syncID": "-LAE80i6La-HvNXyPlUH",
+                    "priorityLevel": 0,
+                    "seenCount": 0,
+                    "cards": [
+                        {
+                            "archived": false,
+                            "syncID": "-LAE80icrV_ry-EfJtcS",
+                            "createdDate": "2018-04-16T16:47",
+                            "dayOfTheWeekMask": 4,
+                            "schedulingMode": 1,
+                            "seenCount": 0
+                        }
+                    ]
+                },
+                {
+                    "name": "Test all",
+                    "createdDate": "2018-04-16T20:49",
+                    "syncID": "-LAF-LqdyN0hgo2oTAlx",
+                    "priorityLevel": 10000,
+                    "seenCount": 0,
+                    "cards": [
+                        {
+                            "archived": false,
+                            "syncID": "-LAF-K7B4-aZIr-jQDaW",
+                            "createdDate": "2018-04-16T20:49",
+                            "dayOfTheWeekMask": 0,
+                            "schedulingMode": 0,
+                            "seenCount": 0
+                        }
+                    ]
+                },
+                {
+                    "name": "Test day of month",
+                    "createdDate": "2018-04-17T10:04",
+                    "priorityLevel": 0,
+                    "seenCount": 0,
+                    "cards": [
+                        {
+                            "archived": false,
+                            "createdDate": "2018-04-17T10:04",
+                            "dayOfTheWeekMask": 0,
+                            "scheduledDaysOfMonth": [
+                                2,
+                                3
+                            ],
+                            "schedulingMode": 3,
+                            "seenCount": 0
+                        }
+                    ]
+                },
+                {
+                    "name": "Test date",
+                    "createdDate": "2018-04-17T10:05",
+                    "priorityLevel": 0,
+                    "seenCount": 0,
+                    "cards": [
+                        {
+                            "archived": false,
+                            "createdDate": "2018-04-17T10:05",
+                            "dayOfTheWeekMask": 0,
+                            "scheduledDate": "2018-04-26T00:00",
+                            "scheduledDates": "2018-04-26T00:00,2018-04-27T00:00,2018-04-28T00:00,2018-04-30T00:00",
+                            "schedulingMode": 2,
+                            "seenCount": 0
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "Feeds": [
+        {
+            "description": "",
+            "name": "Open Doors UK",
+            "subscribedAt": "2015-01-02T10:53",
+            "SyncID": "httpsprayermates3amazonawscomfeed9json",
+            "image": "https:\/\/s3-eu-west-1.amazonaws.com\/prayermate-static\/open_doors_logo.jpeg",
+            "url": "https:\/\/prayermate.s3.amazonaws.com\/feed_9.json",
+            "category": "World Mission"
+        },
+        {
+            "description": "",
+            "name": "St Columba's Free Church",
+            "subscribedAt": "2017-09-28T15:38",
+            "SyncID": "httpsprayermates3euwest1amazonawscomfeed65json",
+            "image": "http:\/\/prayermate.s3.amazonaws.com\/prayer_diaries\/logo_images\/000\/000\/102\/original\/stcolumbas_logo_500x500.jpg",
+            "url": "https:\/\/prayermate.s3-eu-west-1.amazonaws.com\/feed_65.json",
+            "category": "My Church"
+        },
+        {
+            "description": "",
+            "name": "St Andrew the Great",
+            "subscribedAt": "2014-12-10T08:10",
+            "SyncID": "httpsprayermates3amazonawscomfeed128json",
+            "image": "https:\/\/prayermate.s3.amazonaws.com\/feed_images\/feed_4663010e-5673-48f2-9da0-844f05503ea1.png",
+            "url": "https:\/\/prayermate.s3.amazonaws.com\/feed_128.json",
+            "category": "Archive"
+        },
+        {
+            "description": "",
+            "name": "Barnabas Fund",
+            "subscribedAt": "2015-01-02T10:53",
+            "SyncID": "httpsprayermates3amazonawscomfeed20json",
+            "image": "https:\/\/s3-eu-west-1.amazonaws.com\/prayermate-static\/barnabas_fund_logo.png",
+            "url": "https:\/\/prayermate.s3.amazonaws.com\/feed_20.json",
+            "category": "Archive"
+        },
+        {
+            "description": "",
+            "name": "PrayerMate",
+            "subscribedAt": "2014-12-10T08:10",
+            "SyncID": "httpsprayermates3amazonawscomfeed52json",
+            "image": "http:\/\/prayermate.s3.amazonaws.com\/prayer_diaries\/logo_images\/000\/000\/052\/original\/512x512.png",
+            "url": "https:\/\/prayermate.s3.amazonaws.com\/feed_52.json",
+            "category": "Archive"
+        },
+        {
+            "description": "",
+            "name": "St Columba's Free Church",
+            "subscribedAt": "2014-11-30T14:19",
+            "SyncID": "httpsprayermates3amazonawscomfeed65json",
+            "image": "http:\/\/prayermate.s3.amazonaws.com\/prayer_diaries\/logo_images\/000\/000\/102\/original\/stcolumbas_logo_500x500.jpg",
+            "url": "https:\/\/prayermate.s3.amazonaws.com\/feed_65.json",
+            "category": "Archive"
+        },
+        {
+            "description": "",
+            "name": "Operation World",
+            "subscribedAt": "2015-01-02T10:53",
+            "SyncID": "httpsprayermates3amazonawscomfeed76json",
+            "image": "https:\/\/s3-eu-west-1.amazonaws.com\/prayermate-static\/ow_logo.png",
+            "url": "https:\/\/prayermate.s3.amazonaws.com\/feed_76.json",
+            "category": "Archive"
+        },
+        {
+            "description": "",
+            "name": "UCCF",
+            "subscribedAt": "2015-01-02T10:53",
+            "SyncID": "httpsprayermates3amazonawscomfeed8json",
+            "image": "https:\/\/s3-eu-west-1.amazonaws.com\/prayermate-static\/uccf_logo.png",
+            "url": "https:\/\/prayermate.s3.amazonaws.com\/feed_8.json",
+            "category": "Archive"
+        },
+        {
+            "description": "",
+            "name": "St Philemon's Bible Notes",
+            "subscribedAt": "2015-10-15T21:25",
+            "SyncID": "httpsprayermates3amazonawscomfeed91json",
+            "image": "https:\/\/s3-eu-west-1.amazonaws.com\/prayermate-static\/stphilemons_logo.png",
+            "url": "https:\/\/prayermate.s3.amazonaws.com\/feed_91.json",
+            "category": "St Philemon's"
+        }
+    ],
+    "PrayerMateAndroidVersion": "5.11.1.0"
+}

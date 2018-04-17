@@ -5,6 +5,7 @@ import os
 PATHS = [
     'src/test_data.json',
     'src/test_data_ios.json',
+    'src/test_schedules.json',
 ]
 
 file_header = 'module Fixtures exposing (..)'
@@ -17,7 +18,10 @@ def make_csv_string(data):
         for sub in cat['subjects']:
             sub_name = sub['name']
             for card in sub['cards']:
-                content = card['text']
+                try:
+                    content = card['text']
+                except KeyError:
+                    content =''
                 csv_string += f'"{cat_name}","{sub_name}","{content}"\n'
 
     return csv_string

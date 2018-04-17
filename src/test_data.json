@@ -19,10 +19,13 @@
                         {
                             "text": "Our Father, who is in heaven,\nhallowed be your name;\nyour kingdom come;\nyour will be done,\non earth as it is in heaven.\nGive us this day our daily bread.\nAnd forgive us our trespasses,\nas we forgive those that trespass against us.\nLead us not into temptation;\nbut deliver us from evil.\nFor yours is the kingdom,\nthe power, and the glory,\nfor ever and ever.\nAmen.",
                             "archived": false,
+                            "autoArchiveDate": "2018-04-30T00:00",
                             "syncID": "k+D62D437EC3629D9EC1D0A1E01E958A3A|+1+0",
                             "createdDate": "2017-09-27T16:29",
                             "dayOfTheWeekMask": 0,
-                            "schedulingMode": 0,
+                            "scheduledDate": "2018-04-17T00:00",
+                            "scheduledDates": "2018-04-17T00:00,2018-04-18T00:00,2018-04-26T00:00,2018-04-27T00:00,2018-04-30T00:00",
+                            "schedulingMode": 2,
                             "seenCount": 0
                         }
                     ]
@@ -69,7 +72,10 @@
                             "syncID": "k+9B62C8E395549FA69FF0709480C2CC2A|+1+0",
                             "createdDate": "2017-09-27T16:29",
                             "dayOfTheWeekMask": 0,
-                            "schedulingMode": 0,
+                            "scheduledDaysOfMonth": [
+                                1
+                            ],
+                            "schedulingMode": 3,
                             "seenCount": 0
                         }
                     ]

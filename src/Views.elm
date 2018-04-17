@@ -1,6 +1,7 @@
 module Views
     exposing
-        ( blueButton
+        ( GridOptions
+        , blueButton
         , button
         , defaultGridOptions
         , defaultKanBanOptions

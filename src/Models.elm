@@ -46,6 +46,7 @@ type Step
     | CategoriesList CategoryStep
     | SubjectsList (Editing Category) SubjectStep
     | CsvConvert String (Maybe (Result (List String) PrayerMate))
+    | Scheduler
 
 
 type CategoryStep

@@ -24,6 +24,7 @@ if (process.env.WATCH) {
       swDest: 'sw.js',
       clientsClaim: true,
       skipWaiting: true,
+      handler: 'networkFirst',
     }),
   ]);
 }

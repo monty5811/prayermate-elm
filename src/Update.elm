@@ -128,6 +128,22 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
+        GoToScheduler ->
+            case model.step of
+                CategoriesList (ViewCats _) ->
+                    ( { model | step = Scheduler }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        CloseScheduler ->
+            case model.step of
+                Scheduler ->
+                    ( { model | step = initialCategoriesStep }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
         ReceiveTime t ->
             ( { model | currentTime = t }
             , Cmd.none
@@ -535,6 +551,105 @@ update msg model =
 
                 _ ->
                     ( model, Cmd.none )
+
+        ToggleWeekday weekday cat subject card ->
+            case card.schedulingMode of
+                Default ->
+                    toggleWeekday [] weekday cat subject card model
+
+                DayOfWeek selectedDays ->
+                    toggleWeekday selectedDays weekday cat subject card model
+
+                Date _ ->
+                    ( model, Cmd.none )
+
+                DayOfMonth _ ->
+                    ( model, Cmd.none )
+
+
+toggleWeekday : DayOfWeekMask -> WeekDay -> Category -> Subject -> Card -> Model -> ( Model, Cmd Msg )
+toggleWeekday selectedDays weekday cat subject card model =
+    let
+        isPLEveryDay =
+            subject.priorityLevel == 10000
+
+        isDayInMask =
+            List.member weekday selectedDays
+
+        newCard =
+            (case ( isPLEveryDay, isDayInMask ) of
+                ( True, _ ) ->
+                    { card | schedulingMode = DayOfWeek [ weekday ] }
+
+                ( False, True ) ->
+                    { card | schedulingMode = DayOfWeek <| removeDay weekday selectedDays }
+
+                ( False, False ) ->
+                    { card | schedulingMode = DayOfWeek <| addDay weekday selectedDays }
+            )
+                |> checkIfNoDaysTicked
+
+        newSubject =
+            case isPLEveryDay of
+                True ->
+                    case newCard.schedulingMode of
+                        DayOfWeek selectedDays_ ->
+                            -- priorityLevel may need to be downgraded
+                            if List.length selectedDays_ < 7 then
+                                { subject | cards = [ newCard ], priorityLevel = 0 }
+                            else
+                                { subject | cards = [ newCard ] }
+
+                        _ ->
+                            { subject | cards = [ newCard ] }
+
+                False ->
+                    -- we can just update the card and leave the priorityLevel as is
+                    { subject | cards = [ newCard ] }
+
+        newCat =
+            replaceSubject
+                subject
+                (newSubject |> checkIfAllDaysTicked newCard)
+                cat
+
+        newPm =
+            RemoteData.map (replaceCategory cat newCat) model.pm
+    in
+    ( { model | pm = newPm }, Cmd.none )
+
+
+removeDay : WeekDay -> DayOfWeekMask -> DayOfWeekMask
+removeDay weekday mask =
+    List.filter (\day -> day /= weekday) mask
+
+
+addDay : WeekDay -> DayOfWeekMask -> DayOfWeekMask
+addDay weekday mask =
+    weekday :: mask
+
+
+checkIfAllDaysTicked : Card -> Subject -> Subject
+checkIfAllDaysTicked card subject =
+    case card.schedulingMode of
+        DayOfWeek selectedDays ->
+            if List.length selectedDays > 6 then
+                { subject | priorityLevel = 10000, cards = [ { card | schedulingMode = Default } ] }
+            else
+                subject
+
+        _ ->
+            subject
+
+
+checkIfNoDaysTicked : Card -> Card
+checkIfNoDaysTicked card =
+    case card.schedulingMode of
+        DayOfWeek [] ->
+            { card | schedulingMode = Default }
+
+        _ ->
+            card
 
 
 loadDemoData : Cmd Msg

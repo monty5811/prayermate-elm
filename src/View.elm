@@ -13,6 +13,7 @@ import Messages exposing (Msg(..))
 import Models exposing (CategoryStep(..), Model, Step(..))
 import Prayermate exposing (PrayerMate, exportb64)
 import RemoteData exposing (RemoteData(..), WebData)
+import Scheduler
 import Subjects.View as Subj
 import Views as V
 
@@ -60,7 +61,8 @@ navigation model =
             [ V.button [ E.onClick ToggleAbout ]
                 [ Html.text "About" ]
             ]
-        , Html.li [ A.class "ml-auto mr-3" ] [ goToKanbanButton model ]
+        , Html.li [ A.class "ml-auto mr-3" ] [ goToSchedulerButton model ]
+        , Html.li [ A.class "mr-3" ] [ goToKanbanButton model ]
         , Html.li [ A.class "mr-6" ] [ exportButton model ]
         ]
 
@@ -72,6 +74,9 @@ exportButton model =
             exportButtonHelp pm
 
         ( CsvConvert _ (Just (Ok pm)), _ ) ->
+            exportButtonHelp pm
+
+        ( Scheduler, Success pm ) ->
             exportButtonHelp pm
 
         ( _, _ ) ->
@@ -87,19 +92,32 @@ exportButtonHelp pm =
         [ V.greenButton [] [ Html.text "Export" ] ]
 
 
+goToSchedulerButton : Model -> Html Msg
+goToSchedulerButton { step } =
+    case step of
+        CategoriesList (ViewCats _) ->
+            V.blueButton [ E.onClick GoToScheduler ] [ Html.text "Scheduler" ]
+
+        _ ->
+            Html.text ""
+
+
 goToKanbanButton : Model -> Html Msg
 goToKanbanButton model =
     case model.step of
         CsvConvert _ (Just (Ok data)) ->
             case data.categories of
                 [] ->
-                    V.greyButton [] [ Html.text "Go To Kanban" ]
+                    V.greyButton [] [ Html.text "Go To Editor" ]
 
                 _ ->
                     Html.a
                         [ E.onClick CSVGoToKanban
                         ]
-                        [ V.blueButton [] [ Html.text "Go To Kanban " ] ]
+                        [ V.blueButton [] [ Html.text "Go To Editor " ] ]
+
+        Scheduler ->
+            Html.a [ E.onClick CloseScheduler ] [ V.blueButton [] [ Html.text "Go To Editor " ] ]
 
         _ ->
             Html.text ""
@@ -119,6 +137,9 @@ mainContent model =
 
         CsvConvert csv parsed ->
             CsvConvert.view csv parsed
+
+        Scheduler ->
+            mapRemoteView Scheduler.view model.pm
 
 
 mapRemoteView : (a -> Html Msg) -> WebData a -> Html Msg

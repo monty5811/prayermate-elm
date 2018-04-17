@@ -6,7 +6,7 @@ import Html.Attributes as A
 import Html.Events as E
 import Json.Decode
 import Messages exposing (Msg(..))
-import Prayermate exposing (Card, Category, PrayerMate, Subject)
+import Prayermate exposing (Card, Category, PrayerMate, Subject, newSubject)
 import Time
 import Time.Format
 import Util
@@ -142,7 +142,7 @@ addNew currentTime cats catName subName content =
 updateCatWithSubject : Time.Time -> String -> String -> String -> Category -> Category
 updateCatWithSubject currentTime catName subName content cat =
     if cat.name == catName then
-        { cat | subjects = cat.subjects ++ [ newSubject currentTime subName content ] }
+        { cat | subjects = cat.subjects ++ [ newSubject currentTime subName (Just content) ] }
     else
         cat
 
@@ -157,28 +157,5 @@ createNewCatWithSubject currentTime catName subName content =
     , manualSessionLimit = Nothing
     , syncID = Nothing
     , subjects =
-        [ newSubject currentTime subName content ]
-    }
-
-
-newSubject : Time.Time -> String -> String -> Subject
-newSubject currentTime subName content =
-    { name = subName
-    , createdDate = Time.Format.format Util.dateTimeFormat currentTime
-    , lastPrayed = Nothing
-    , schedulingTimestamp = Nothing
-    , syncID = Nothing
-    , priorityLevel = 0
-    , seenCount = 0
-    , cards =
-        [ { text = Just content
-          , archived = False
-          , syncID = Nothing
-          , createdDate = Time.Format.format Util.dateTimeFormat currentTime
-          , dayOfTheWeekMask = 0
-          , schedulingMode = 0
-          , lastPrayed = Nothing
-          , seenCount = 0
-          }
-        ]
+        [ newSubject currentTime subName (Just content) ]
     }

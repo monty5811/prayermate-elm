@@ -3,7 +3,7 @@ module Messages exposing (Msg(..))
 import DragDrop
 import Json.Encode
 import Navigation exposing (Location)
-import Prayermate exposing (Card, Category, PrayerMate, Subject)
+import Prayermate exposing (Card, Category, PrayerMate, Subject, WeekDay)
 import RemoteData exposing (WebData)
 import Time
 
@@ -57,3 +57,6 @@ type Msg
     | CSVInputChanged String
     | CSVFileSelected String
     | CSVGoToKanban
+    | GoToScheduler
+    | CloseScheduler
+    | ToggleWeekday WeekDay Category Subject Card

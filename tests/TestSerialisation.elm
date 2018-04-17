@@ -9,9 +9,12 @@ import Prayermate
     exposing
         ( Card
         , Category
+        , DayOfWeekMask
         , Feed
         , PrayerMate
+        , SchedulingMode(..)
         , Subject
+        , WeekDay(..)
         , decodeCard
         , decodeCategory
         , decodeFeed
@@ -22,6 +25,7 @@ import Prayermate
         , encodeFeed
         , encodePrayerMate
         , encodeSubject
+        , intToDayOfTheWeekMask
         )
 import Test exposing (Test, describe, fuzz, test)
 
@@ -55,11 +59,21 @@ card =
     Fuzz.map Card (Fuzz.maybe Fuzz.string)
         |> Fuzz.andMap Fuzz.bool
         |> Fuzz.andMap (Fuzz.maybe Fuzz.string)
+        |> Fuzz.andMap (Fuzz.maybe Fuzz.string)
         |> Fuzz.andMap Fuzz.string
-        |> Fuzz.andMap Fuzz.int
-        |> Fuzz.andMap Fuzz.int
         |> Fuzz.andMap (Fuzz.maybe Fuzz.string)
         |> Fuzz.andMap Fuzz.int
+        |> Fuzz.andMap schedule
+
+
+schedule : Fuzzer SchedulingMode
+schedule =
+    Fuzz.oneOf
+        [ Fuzz.constant Default
+        , Fuzz.constant <| DayOfWeek [ Monday, Sunday ]
+        , Fuzz.constant <| Date "date1,date2"
+        , Fuzz.constant <| DayOfMonth [ 1, 2, 3 ]
+        ]
 
 
 feed : Fuzzer Feed
@@ -92,7 +106,22 @@ serialisation =
             , test "test data (iOS)" <|
                 \_ ->
                     roundTripString encodePrayerMate decodePrayerMate Fixtures.test_data_ios
+            , test "test scheduling data" <|
+                \_ ->
+                    roundTripString encodePrayerMate decodePrayerMate Fixtures.test_schedules
             ]
+        , describe "test day of the week mask" <|
+            List.map dayOfTheWeekMaskTest
+                [ ( 1, [ Sunday ] )
+                , ( 2, [ Monday ] )
+                , ( 4, [ Tuesday ] )
+                , ( 8, [ Wednesday ] )
+                , ( 16, [ Thursday ] )
+                , ( 32, [ Friday ] )
+                , ( 64, [ Saturday ] )
+                , ( 126, [ Saturday, Friday, Thursday, Wednesday, Tuesday, Monday ] )
+                , ( 33, [ Friday, Sunday ] )
+                ]
         , describe "fuzz round trip"
             [ fuzz feed "Feed" <| roundTrip encodeFeed decodeFeed
             , fuzz subject "Subject" <| roundTrip encodeSubject decodeSubject
@@ -127,3 +156,10 @@ roundTripString enc dec str =
 
         Err err ->
             Expect.fail err
+
+
+dayOfTheWeekMaskTest : ( Int, DayOfWeekMask ) -> Test
+dayOfTheWeekMaskTest ( mask, days ) =
+    test (toString mask) <|
+        \_ ->
+            Expect.equal (intToDayOfTheWeekMask mask) days
