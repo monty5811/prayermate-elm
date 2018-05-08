@@ -1,4 +1,4 @@
-module Subjects.View exposing (view)
+module Subjects.View exposing (view, viewSubjectEdit)
 
 import Editing exposing (Editing(Editing, NoSelected))
 import Html exposing (Html)
@@ -86,7 +86,7 @@ viewSubject step sub =
 
                 EditSubjectName (Editing originalSub modifiedSub) ->
                     if sub == originalSub then
-                        viewSubjectEdit modifiedSub
+                        viewSubjectEdit viewSubjectEditProps modifiedSub
                     else
                         viewSubjectNoEdit sub
 
@@ -147,13 +147,25 @@ viewSubjectNoEdit sub =
     ]
 
 
-viewSubjectEdit : Subject -> List (Html Msg)
-viewSubjectEdit modifiedSub =
+type alias ViewSubjectEditProps =
+    { save : Msg
+    , updateName : String -> Msg
+    , cancel : Msg
+    }
+
+
+viewSubjectEditProps : ViewSubjectEditProps
+viewSubjectEditProps =
+    ViewSubjectEditProps SubEditSave SubEditUpdateName SubEditCancel
+
+
+viewSubjectEdit : ViewSubjectEditProps -> Subject -> List (Html Msg)
+viewSubjectEdit props modifiedSub =
     [ V.form
-        [ E.onSubmit SubEditSave ]
-        [ V.textInput SubEditUpdateName modifiedSub.name
-        , V.greenButton [ E.onClick SubEditSave ] [ Html.text "Save" ]
-        , V.greyButton [ E.onClick SubEditCancel ] [ Html.text "Cancel" ]
+        [ E.onSubmit props.save ]
+        [ V.textInput props.updateName modifiedSub.name
+        , V.greenButton [ E.onClick props.save ] [ Html.text "Save" ]
+        , V.greyButton [ E.onClick props.cancel ] [ Html.text "Cancel" ]
         ]
     ]
 

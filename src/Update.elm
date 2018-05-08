@@ -276,6 +276,42 @@ update msg model =
                     -- skip every other step
                     ( model, Cmd.none )
 
+        CatEditSubjectStart cat sub ->
+            ( { model | step = CategoriesList <| EditSubject DragDrop.init cat (Editing sub sub) }, Cmd.none )
+
+        CatEditSubjectCancel ->
+            case model.step of
+                CategoriesList (EditSubject _ _ _) ->
+                    ( { model | step = initialCategoriesStep }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        CatEditSubjectSave ->
+            case model.step of
+                CategoriesList (EditSubject _ cat (Editing origSub modifSub)) ->
+                    let
+                        newCat =
+                            { cat | subjects = Util.replaceItem origSub modifSub cat.subjects }
+                    in
+                    ( { model
+                        | step = initialCategoriesStep
+                        , pm = RemoteData.map2 updateCategories (RemoteData.map (.categories >> Util.replaceItem cat newCat) model.pm) model.pm
+                      }
+                    , Cmd.none
+                    )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        CatEditSubjectUpdateName text ->
+            case model.step of
+                CategoriesList (EditSubject dnd cat eSub) ->
+                    ( { model | step = CategoriesList <| EditSubject dnd cat (Editing.map (updateName text) eSub) }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
         DnD msg_ ->
             case model.step of
                 CategoriesList (ViewCats oldDndModel) ->

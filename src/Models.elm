@@ -54,6 +54,7 @@ type CategoryStep
     | CreateCat String
     | EditCat (Editing Category)
     | DeleteCat Category
+    | EditSubject (DragDrop.Model Category Subject) Category (Editing Subject)
 
 
 initialCategoriesStep : Step

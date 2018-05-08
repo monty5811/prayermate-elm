@@ -7,8 +7,9 @@ import Html.Attributes as A
 import Html.Events as E
 import Icons
 import Messages exposing (Msg(..))
-import Models exposing (CategoryStep(CreateCat, DeleteCat, EditCat, ViewCats))
-import Prayermate exposing (Category, PrayerMate, Subject)
+import Models exposing (CategoryStep(CreateCat, DeleteCat, EditCat, EditSubject, ViewCats))
+import Prayermate exposing (Card, Category, PrayerMate, Subject)
+import Subjects.View exposing (viewSubjectEdit)
 import Views as V
 
 
@@ -71,6 +72,12 @@ viewCategory step cat =
         CreateCat _ ->
             viewCategoryNoEdit Nothing cat
 
+        EditSubject dndState eCat eSub ->
+            if eCat == cat then
+                viewCategoryEditSubject cat eSub
+            else
+                viewCategoryNoEdit dndState cat
+
 
 catColClass : String
 catColClass =
@@ -95,6 +102,26 @@ viewCategoryNoEdit dndModel cat =
         ]
 
 
+viewCategoryEditSubject : Category -> Editing Subject -> Html Msg
+viewCategoryEditSubject cat eSub =
+    Html.div
+        [ A.class catColClass ]
+        (Html.h3 [ A.class "py-2" ] [ Html.text cat.name ]
+            :: (case eSub of
+                    NoSelected ->
+                        []
+
+                    Editing _ modifSub ->
+                        viewSubjectEdit
+                            { save = CatEditSubjectSave
+                            , updateName = CatEditSubjectUpdateName
+                            , cancel = CatEditSubjectCancel
+                            }
+                            modifSub
+               )
+        )
+
+
 subjectCard : DragDrop.Model Category Subject -> Category -> Subject -> Html Msg
 subjectCard dndModel cat sub =
     let
@@ -105,8 +132,9 @@ subjectCard dndModel cat sub =
                 "bg-grey-light"
     in
     Html.li
-        ([ A.class "p-2 mb-2"
+        ([ A.class "p-2 mb-2 cursor-point"
          , A.class dragClass
+         , E.onClick <| CatEditSubjectStart cat sub
          ]
             ++ DragDrop.draggable DnD cat sub
         )

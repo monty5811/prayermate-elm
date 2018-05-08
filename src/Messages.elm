@@ -33,6 +33,10 @@ type Msg
     | CatCreateUpdateName String
     | CatCreateSave
     | CatCreateCancel
+    | CatEditSubjectStart Category Subject
+    | CatEditSubjectCancel
+    | CatEditSubjectUpdateName String
+    | CatEditSubjectSave
     | DnD (DragDrop.Msg Category Subject)
     | SubEditStart Subject
     | SubEditUpdateName String
