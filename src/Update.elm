@@ -685,7 +685,10 @@ update msg model =
                             ( { model | step = step selectedDays }, Cmd.map SetDatePicker datePickerCmd )
 
                         DatePicker.Changed (Just newDate) ->
-                            ( { model | step = step <| newDate :: selectedDays }, Cmd.map SetDatePicker datePickerCmd )
+                            if List.member newDate selectedDays then
+                                ( { model | step = step selectedDays }, Cmd.map SetDatePicker datePickerCmd )
+                            else
+                                ( { model | step = step <| newDate :: selectedDays }, Cmd.map SetDatePicker datePickerCmd )
 
                 _ ->
                     ( model, Cmd.none )
