@@ -26,6 +26,8 @@ module Prayermate
         , encodePrayerMate
         , encodeSubject
         , exportb64
+        , getSelectedDates
+        , getSelectedDaysOfMonth
         , intToDayOfTheWeekMask
         , maybeAddSubject
         , newCard
@@ -40,6 +42,7 @@ module Prayermate
         )
 
 import Base64
+import Date exposing (Date)
 import Json.Decode
 import Json.Decode.Pipeline
 import Json.Encode
@@ -249,6 +252,41 @@ decodeCard : Json.Decode.Decoder Card
 decodeCard =
     decodeRawCard
         |> Json.Decode.andThen cardHelp
+
+
+getSelectedDaysOfMonth : Card -> List Int
+getSelectedDaysOfMonth card =
+    case card.schedulingMode of
+        Default ->
+            []
+
+        DayOfWeek _ ->
+            []
+
+        Date _ ->
+            []
+
+        DayOfMonth days ->
+            days
+
+
+getSelectedDates : Card -> List Date
+getSelectedDates card =
+    case card.schedulingMode of
+        Default ->
+            []
+
+        DayOfWeek _ ->
+            []
+
+        Date dates ->
+            dates
+                |> String.split ","
+                |> List.map (Date.fromString >> Result.toMaybe)
+                |> List.filterMap identity
+
+        DayOfMonth _ ->
+            []
 
 
 {-|

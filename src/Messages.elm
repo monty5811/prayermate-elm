@@ -1,5 +1,7 @@
 module Messages exposing (Msg(..))
 
+import Date exposing (Date)
+import DatePicker
 import DragDrop
 import Json.Encode
 import Navigation exposing (Location)
@@ -64,3 +66,12 @@ type Msg
     | GoToScheduler
     | CloseScheduler
     | ToggleWeekday WeekDay Category Subject Card
+    | SchedOpenDatePickerView ( Category, Subject, Card )
+    | SchedCancelDatePickerView
+    | SchedSaveDateChange String
+    | SchedOpenDoMPickerView ( Category, Subject, Card )
+    | SchedCancelDoMPickerView
+    | SchedSaveDoMChange
+    | SchedDoMToggleDay Int
+    | SetDatePicker DatePicker.Msg
+    | SchedDatePickerDeleteDate Date

@@ -1,6 +1,9 @@
 module Update exposing (update)
 
 import CsvConvert exposing (parseCsvData)
+import Date
+import DateFormat
+import DatePicker
 import DragDrop exposing (Res(Dragging, DraggingCancelled, Dropped))
 import Editing exposing (Editing(Editing, NoSelected))
 import Http
@@ -131,14 +134,14 @@ update msg model =
         GoToScheduler ->
             case model.step of
                 CategoriesList (ViewCats _) ->
-                    ( { model | step = Scheduler }, Cmd.none )
+                    ( { model | step = Scheduler MainView }, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
 
         CloseScheduler ->
             case model.step of
-                Scheduler ->
+                Scheduler MainView ->
                     ( { model | step = initialCategoriesStep }, Cmd.none )
 
                 _ ->
@@ -597,10 +600,211 @@ update msg model =
                     toggleWeekday selectedDays weekday cat subject card model
 
                 Date _ ->
-                    ( model, Cmd.none )
+                    toggleWeekday [] weekday cat subject card model
 
                 DayOfMonth _ ->
+                    toggleWeekday [] weekday cat subject card model
+
+        SchedOpenDatePickerView (( cat, sub, card ) as cd) ->
+            case model.step of
+                Scheduler MainView ->
+                    let
+                        ( datePicker, datePickerCmd ) =
+                            DatePicker.init
+                    in
+                    ( { model | step = Scheduler <| DatePickerView datePicker cd <| getSelectedDates card }
+                    , Cmd.map SetDatePicker datePickerCmd
+                    )
+
+                _ ->
                     ( model, Cmd.none )
+
+        SchedCancelDatePickerView ->
+            case model.step of
+                Scheduler (DatePickerView _ _ _) ->
+                    ( { model | step = Scheduler MainView }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        SchedSaveDateChange dates ->
+            case model.step of
+                Scheduler (DatePickerView _ cd selectedDates) ->
+                    { model | step = Scheduler MainView } |> saveDateChange selectedDates cd
+
+                _ ->
+                    ( model, Cmd.none )
+
+        SchedOpenDoMPickerView (( cat, sub, card ) as cd) ->
+            case model.step of
+                Scheduler MainView ->
+                    ( { model | step = Scheduler <| DayOfMonthPickerView cd <| getSelectedDaysOfMonth card }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        SchedCancelDoMPickerView ->
+            case model.step of
+                Scheduler (DayOfMonthPickerView _ _) ->
+                    ( { model | step = Scheduler MainView }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        SchedDoMToggleDay day ->
+            case model.step of
+                Scheduler (DayOfMonthPickerView cd selectedDays) ->
+                    ( { model | step = Scheduler <| DayOfMonthPickerView cd <| toggleDay day selectedDays }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        SchedSaveDoMChange ->
+            case model.step of
+                Scheduler (DayOfMonthPickerView cd selectedDays) ->
+                    saveDoMChange selectedDays cd model
+
+                _ ->
+                    ( model, Cmd.none )
+
+        SetDatePicker subMsg ->
+            case model.step of
+                Scheduler (DatePickerView datepicker cd selectedDays) ->
+                    let
+                        ( newDatePicker, datePickerCmd, dateEvent ) =
+                            DatePicker.update DatePicker.defaultSettings subMsg datepicker
+
+                        step =
+                            Scheduler << DatePickerView newDatePicker cd
+                    in
+                    case dateEvent of
+                        DatePicker.NoChange ->
+                            ( { model | step = step selectedDays }, Cmd.map SetDatePicker datePickerCmd )
+
+                        DatePicker.Changed Nothing ->
+                            ( { model | step = step selectedDays }, Cmd.map SetDatePicker datePickerCmd )
+
+                        DatePicker.Changed (Just newDate) ->
+                            ( { model | step = step <| newDate :: selectedDays }, Cmd.map SetDatePicker datePickerCmd )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        SchedDatePickerDeleteDate date ->
+            case model.step of
+                Scheduler (DatePickerView datepicker cd selectedDays) ->
+                    ( { model | step = Scheduler <| DatePickerView datepicker cd <| List.filter (\d -> d /= date) selectedDays }
+                    , Cmd.none
+                    )
+
+                _ ->
+                    ( model, Cmd.none )
+
+
+toggleDay : Int -> List Int -> List Int
+toggleDay day selectedDays =
+    if List.member day selectedDays then
+        List.filter (\d -> d /= day) selectedDays
+    else
+        List.sort <| day :: selectedDays
+
+
+saveDateChange : List Date.Date -> ( Category, Subject, Card ) -> Model -> ( Model, Cmd Msg )
+saveDateChange selectedDates ( cat, subject, card ) model =
+    let
+        isPLEveryDay =
+            subject.priorityLevel == 10000
+
+        anyDatesChosen =
+            List.length selectedDates > 0
+
+        newCard =
+            if anyDatesChosen then
+                { card | schedulingMode = Date <| String.join "," <| List.map pmDateFmt selectedDates }
+            else
+                { card | schedulingMode = Default }
+
+        newSubject =
+            if isPLEveryDay then
+                case newCard.schedulingMode of
+                    Date _ ->
+                        -- priorityLevel may need to be downgraded
+                        { subject | cards = [ newCard ], priorityLevel = 0 }
+
+                    _ ->
+                        { subject | cards = [ newCard ] }
+            else
+                -- we can just update the card and leave the priorityLevel as is
+                { subject | cards = [ newCard ] }
+
+        newCat =
+            replaceSubject
+                subject
+                newSubject
+                cat
+
+        newPm =
+            RemoteData.map (replaceCategory cat newCat) model.pm
+    in
+    ( { model | pm = newPm }, Cmd.none )
+
+
+{-|
+
+    Convert to format: 2018-04-26T00:00
+
+-}
+pmDateFmt : Date.Date -> String
+pmDateFmt date =
+    DateFormat.format
+        [ DateFormat.yearNumber
+        , DateFormat.text "-"
+        , DateFormat.monthFixed
+        , DateFormat.text "-"
+        , DateFormat.dayOfMonthFixed
+        , DateFormat.text "T00:00"
+        ]
+        date
+
+
+saveDoMChange : List Int -> ( Category, Subject, Card ) -> Model -> ( Model, Cmd Msg )
+saveDoMChange selectedDays ( cat, subject, card ) model =
+    let
+        isPLEveryDay =
+            subject.priorityLevel == 10000
+
+        anyDaysChosen =
+            List.length selectedDays > 0
+
+        newCard =
+            if anyDaysChosen then
+                { card | schedulingMode = DayOfMonth selectedDays }
+            else
+                { card | schedulingMode = Default }
+
+        newSubject =
+            if isPLEveryDay then
+                case newCard.schedulingMode of
+                    DayOfMonth _ ->
+                        -- priorityLevel may need to be downgraded
+                        { subject | cards = [ newCard ], priorityLevel = 0 }
+
+                    _ ->
+                        { subject | cards = [ newCard ] }
+            else
+                -- we can just update the card and leave the priorityLevel as is
+                { subject | cards = [ newCard ] }
+
+        newCat =
+            replaceSubject
+                subject
+                newSubject
+                cat
+
+        newPm =
+            RemoteData.map (replaceCategory cat newCat) model.pm
+    in
+    ( { model | pm = newPm, step = Scheduler MainView }, Cmd.none )
 
 
 toggleWeekday : DayOfWeekMask -> WeekDay -> Category -> Subject -> Card -> Model -> ( Model, Cmd Msg )

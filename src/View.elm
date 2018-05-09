@@ -10,7 +10,7 @@ import Icons
 import Json.Decode
 import Markdown
 import Messages exposing (Msg(..))
-import Models exposing (CategoryStep(..), Model, Step(..))
+import Models exposing (CategoryStep(..), Model, SchedulerStep(..), Step(..))
 import Prayermate exposing (PrayerMate, exportb64)
 import RemoteData exposing (RemoteData(..), WebData)
 import Scheduler
@@ -76,7 +76,7 @@ exportButton model =
         ( CsvConvert _ (Just (Ok pm)), _ ) ->
             exportButtonHelp pm
 
-        ( Scheduler, Success pm ) ->
+        ( Scheduler MainView, Success pm ) ->
             exportButtonHelp pm
 
         ( _, _ ) ->
@@ -116,7 +116,7 @@ goToKanbanButton model =
                         ]
                         [ V.blueButton [] [ Html.text "Go To Editor " ] ]
 
-        Scheduler ->
+        Scheduler MainView ->
             Html.a [ E.onClick CloseScheduler ] [ V.blueButton [] [ Html.text "Go To Editor " ] ]
 
         _ ->
@@ -138,8 +138,8 @@ mainContent model =
         CsvConvert csv parsed ->
             CsvConvert.view csv parsed
 
-        Scheduler ->
-            mapRemoteView Scheduler.view model.pm
+        Scheduler schedStep ->
+            mapRemoteView (Scheduler.view schedStep) model.pm
 
 
 mapRemoteView : (a -> Html Msg) -> WebData a -> Html Msg

@@ -2,6 +2,7 @@ module Models
     exposing
         ( CategoryStep(..)
         , Model
+        , SchedulerStep(..)
         , Step(..)
         , SubjectStep(..)
         , decodePrayerMate2WebData
@@ -9,6 +10,8 @@ module Models
         , initialModel
         )
 
+import Date exposing (Date)
+import DatePicker
 import DragDrop
 import Editing exposing (Editing(Editing))
 import Json.Decode
@@ -46,7 +49,7 @@ type Step
     | CategoriesList CategoryStep
     | SubjectsList (Editing Category) SubjectStep
     | CsvConvert String (Maybe (Result (List String) PrayerMate))
-    | Scheduler
+    | Scheduler SchedulerStep
 
 
 type CategoryStep
@@ -55,6 +58,12 @@ type CategoryStep
     | EditCat (Editing Category)
     | DeleteCat Category
     | EditSubject (DragDrop.Model Category Subject) Category (Editing Subject)
+
+
+type SchedulerStep
+    = MainView
+    | DatePickerView DatePicker.DatePicker ( Category, Subject, Card ) (List Date)
+    | DayOfMonthPickerView ( Category, Subject, Card ) (List Int)
 
 
 initialCategoriesStep : Step

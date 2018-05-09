@@ -1,11 +1,16 @@
 module Scheduler exposing (view)
 
+import Date exposing (Date)
+import DateFormat
+import DatePicker
 import Html exposing (Html)
 import Html.Attributes as A
 import Html.Events as E
+import Icons
 import Messages exposing (Msg(..))
+import Models exposing (SchedulerStep(..))
 import Prayermate exposing (..)
-import Views exposing (GridOptions, defaultGridOptions, gridWithOptions)
+import Views as V exposing (GridOptions, defaultGridOptions, gridWithOptions)
 
 
 gridOptions : GridOptions
@@ -113,13 +118,87 @@ extractFromWeekMask cat subject card weekday cols =
             { cols | sat = cd :: cols.sat }
 
 
-view : PrayerMate -> Html Msg
-view pm =
-    let
-        columnData =
-            getColumns pm
-    in
-    gridWithOptions gridOptions [ A.class "py-4" ] (gridCols columnData)
+view : SchedulerStep -> PrayerMate -> Html Msg
+view step pm =
+    case step of
+        MainView ->
+            gridWithOptions gridOptions [ A.class "py-4" ] (gridCols <| getColumns pm)
+
+        DatePickerView datepicker cd selectedDates ->
+            datePickerView datepicker cd selectedDates
+
+        DayOfMonthPickerView cd selectedDays ->
+            dayOfMonthPickerView cd selectedDays
+
+
+defaultDPSettings =
+    DatePicker.defaultSettings
+
+
+datePickerView : DatePicker.DatePicker -> CardDetails -> List Date -> Html Msg
+datePickerView datepicker ( cat, subject, card ) selectedDates =
+    Html.div
+        [ A.class "fixed shadow-inner max-w-md md:relative pin-x align-top m-auto justify-end md:justify-center p-8 bg-white md:rounded w-full md:h-auto md:shadow flex flex-col" ]
+        [ Html.h2 [ A.class "mb-2" ] [ Html.text subject.name ]
+        , Html.p [ A.class "mb-2" ] [ Html.text "Edit Dates:" ]
+        , Html.div [ A.class "flex" ]
+            [ Html.div [ A.class "flex-1" ]
+                [ DatePicker.view
+                    Nothing
+                    { defaultDPSettings | placeholder = "Add new date" }
+                    datepicker
+                    |> Html.map SetDatePicker
+                ]
+            , Html.div [ A.class "flex-1" ] [ Html.ul [ A.class "list-reset" ] <| List.map datePickerDateItem selectedDates ]
+            ]
+        , Html.div [ A.class "my-4" ]
+            [ V.greenButton [ A.class "w-1/2", E.onClick <| SchedSaveDateChange "dates go here" ] [ Html.text "Save" ]
+            , V.greyButton [ A.class "w-1/2", E.onClick SchedCancelDatePickerView ] [ Html.text "Cancel" ]
+            ]
+        ]
+
+
+datePickerDateItem : Date -> Html Msg
+datePickerDateItem date =
+    Html.li [ E.onClick <| SchedDatePickerDeleteDate date, A.class "p-2 mb-2 cursor-point bg-grey-light" ] [ Html.span [ A.class "float-right text-red cursor-pointer" ] [ Icons.x ], Html.text <| formatDate date ]
+
+
+formatDate : Date -> String
+formatDate date =
+    DateFormat.format
+        [ DateFormat.dayOfMonthSuffix
+        , DateFormat.text " "
+        , DateFormat.monthNameFull
+        , DateFormat.text ", "
+        , DateFormat.yearNumber
+        ]
+        date
+
+
+dayOfMonthPickerView : CardDetails -> List Int -> Html Msg
+dayOfMonthPickerView ( cat, subject, card ) selectedDays =
+    Html.div
+        [ A.class "fixed shadow-inner max-w-md md:relative pin-x align-top m-auto justify-end md:justify-center p-8 bg-white md:rounded w-full md:h-auto md:shadow flex flex-col" ]
+        [ Html.h2 [ A.class "mb-2" ] [ Html.text subject.name ]
+        , Html.p [ A.class "mb-1" ] [ Html.text "Pick Days Of The Month:" ]
+        , gridWithOptions { defaultGridOptions | maxCols = 7, gridGap = 3, minHeight = 20 } [ A.class "my-4" ] <| List.map (dayOfMonthDay selectedDays) (List.range 1 31)
+        , V.greenButton [ A.class "my-1", E.onClick <| SchedSaveDoMChange ] [ Html.text "Save" ]
+        , V.greyButton [ A.class "my-1", E.onClick SchedCancelDoMPickerView ] [ Html.text "Cancel" ]
+        ]
+
+
+dayOfMonthDay : List Int -> Int -> Html Msg
+dayOfMonthDay selectedDays currentDay =
+    Html.div
+        [ A.class "text-center cursor-pointer"
+        , A.class <|
+            if List.member currentDay selectedDays then
+                "bg-green-light"
+            else
+                "bg-grey"
+        , E.onClick <| SchedDoMToggleDay currentDay
+        ]
+        [ Html.text <| toString currentDay ]
 
 
 gridCols : Columns -> List (Html Msg)
@@ -163,18 +242,25 @@ weekDaySel (( cat, sub, card ) as cd) =
             weekDaySelHelp cd days
 
         Date _ ->
-            Html.text ""
+            weekDaySelHelp cd []
 
         DayOfMonth _ ->
-            Html.text ""
+            weekDaySelHelp cd []
 
 
 weekDaySelHelp : CardDetails -> DayOfWeekMask -> Html Msg
 weekDaySelHelp (( cat, sub, card ) as cd) selectedDays =
     Html.div [ A.class "my-1 py-1 bg-grey-dark" ]
-        [ Html.div [ A.class "inline-flex" ] (List.map (weekDaySelDay cd selectedDays) daysOfWeek)
+        [ Html.div
+            [ A.class "inline-flex" ]
+            (List.map (weekDaySelDay cd selectedDays) daysOfWeek
+                ++ [ Html.div [ A.class "flex-1 mx-1" ] [ Html.text "|" ]
+                   , dateSel cd
+                   , dayOfMonthSel cd
+                   ]
+            )
         , if sub.priorityLevel == 10000 then
-            Html.div [ A.class "flex-7 mx-2 text-sm text-white" ] [ Html.text "Priority Level: Every Day" ]
+            Html.div [ A.class "flex-10 mx-2 text-sm text-white" ] [ Html.text "Priority Level: Every Day" ]
           else
             Html.text ""
         ]
@@ -188,6 +274,24 @@ weekDaySelDay ( cat, subject, card ) selectedDays weekday =
         , A.class "flex-1 cursor-pointer mx-1"
         ]
         [ Html.text <| weekDayAbbr weekday ]
+
+
+dateSel : CardDetails -> Html Msg
+dateSel (( cat, subject, card ) as cd) =
+    Html.div
+        [ E.onClick (SchedOpenDatePickerView cd)
+        , A.class "flex-1 cursor-pointer mx-1"
+        ]
+        [ Html.text "D" ]
+
+
+dayOfMonthSel : CardDetails -> Html Msg
+dayOfMonthSel (( cat, subject, card ) as cd) =
+    Html.div
+        [ E.onClick (SchedOpenDoMPickerView cd)
+        , A.class "flex-1 cursor-pointer mx-1"
+        ]
+        [ Html.text "M" ]
 
 
 weekDayAbbr : WeekDay -> String

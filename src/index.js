@@ -2,6 +2,7 @@ const Elm = require('./Main.elm');
 
 require('./about.md');
 require('../node_modules/tailwindcss/dist/tailwind.min.css');
+require('./elm-datepicker.css');
 
 const LOCAL_STORAGE_KEY = 'pm-cached-value-v1';
 
