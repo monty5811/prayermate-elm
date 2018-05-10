@@ -1,8 +1,10 @@
 module Icons
     exposing
-        ( cornerUpLeft
+        ( calendar
+        , cornerUpLeft
         , edit
         , move
+        , nums
         , plus
         , x
         )
@@ -25,6 +27,21 @@ svgFeatherIcon className =
         , A.strokeLinecap "round"
         , A.strokeLinejoin "round"
         , A.strokeWidth "2"
+        , A.viewBox "0 0 24 24"
+        , A.width "16"
+        ]
+
+
+svgFeatherIconThin : String -> List (Svg msg) -> Html msg
+svgFeatherIconThin className =
+    svg
+        [ A.class <| "feather feather-" ++ className
+        , A.fill "none"
+        , A.height "16"
+        , A.stroke "currentColor"
+        , A.strokeLinecap "round"
+        , A.strokeLinejoin "round"
+        , A.strokeWidth "1"
         , A.viewBox "0 0 24 24"
         , A.width "16"
         ]
@@ -71,4 +88,23 @@ move =
         , Svg.polyline [ A.points "19 9 22 12 19 15" ] []
         , Svg.line [ A.x1 "2", A.y1 "12", A.x2 "22", A.y2 "12" ] []
         , Svg.line [ A.x1 "12", A.y1 "2", A.x2 "12", A.y2 "22" ] []
+        ]
+
+
+calendar : Html msg
+calendar =
+    svgFeatherIcon "calendar"
+        [ Svg.rect [ A.x "3", A.y "4", A.width "18", A.height "18", A.rx "2", A.ry "2" ] []
+        , Svg.line [ A.x1 "16", A.y1 "2", A.x2 "16", A.y2 "6" ] []
+        , Svg.line [ A.x1 "8", A.y1 "2", A.x2 "8", A.y2 "6" ] []
+        , Svg.line [ A.x1 "3", A.y1 "10", A.x2 "21", A.y2 "10" ] []
+        ]
+
+
+nums : Html msg
+nums =
+    svgFeatherIconThin "nums"
+        [ Svg.text_ [ A.x "3", A.y "12", A.fontFamily "Verdana", A.fontSize "10" ] [ Svg.text "1" ]
+        , Svg.text_ [ A.x "15", A.y "12", A.fontFamily "Verdana", A.fontSize "10" ] [ Svg.text "2" ]
+        , Svg.text_ [ A.x "9", A.y "24", A.fontFamily "Verdana", A.fontSize "10" ] [ Svg.text "3" ]
         ]

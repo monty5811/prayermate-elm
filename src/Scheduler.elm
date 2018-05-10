@@ -7,6 +7,7 @@ import Html exposing (Html)
 import Html.Attributes as A
 import Html.Events as E
 import Icons
+import Markdown
 import Messages exposing (Msg(..))
 import Models exposing (SchedulerStep(..))
 import Prayermate exposing (..)
@@ -122,7 +123,16 @@ view : SchedulerStep -> PrayerMate -> Html Msg
 view step pm =
     case step of
         MainView ->
-            gridWithOptions gridOptions [ A.class "py-4" ] (gridCols <| getColumns pm)
+            let
+                cols =
+                    getColumns pm
+            in
+            Html.div []
+                [ Markdown.toHtml [ A.class "mx-8 leading-normal font-sans" ] helpMd
+                , gridWithOptions gridOptions [ A.class "py-4 max-w-lg" ] (otherSchedCols cols)
+                , Html.h3 [] [ Html.text "Day of the Week" ]
+                , gridWithOptions gridOptions [ A.class "py-4 overflow-x-scroll" ] (dayOfWeekCols cols)
+                ]
 
         DatePickerView datepicker cd selectedDates ->
             datePickerView datepicker cd selectedDates
@@ -131,6 +141,28 @@ view step pm =
             dayOfMonthPickerView cd selectedDays
 
 
+helpMd : String
+helpMd =
+    """
+## Help
+
+There are four scheduling modes that a subject can have. Each subject can only be in a single mode.
+
+* Default - managed completely by PrayerMate
+* Day of The Week
+* Day of the Month
+* Specific Dates
+
+How to use this tool:
+
+* Click on the calendar to choose specific dates
+* Click on the numbers to choose days of the month
+* Click on each weekday to toggle that day - the subject will show up in each column that is selected
+* If you want to move a subject back into "Default", simply remove all other scheduling, e.g. remove all the selected weekdays or all the selected dates
+    """
+
+
+defaultDPSettings : DatePicker.Settings
 defaultDPSettings =
     DatePicker.defaultSettings
 
@@ -201,8 +233,8 @@ dayOfMonthDay selectedDays currentDay =
         [ Html.text <| toString currentDay ]
 
 
-gridCols : Columns -> List (Html Msg)
-gridCols cols =
+dayOfWeekCols : Columns -> List (Html Msg)
+dayOfWeekCols cols =
     [ colView "Sunday" cols.sun
     , colView "Monday" cols.mon
     , colView "Tuesday" cols.tues
@@ -210,7 +242,12 @@ gridCols cols =
     , colView "Thursday" cols.thurs
     , colView "Friday" cols.fri
     , colView "Saturday" cols.sat
-    , colView "Default (auto scheduled)" cols.auto
+    ]
+
+
+otherSchedCols : Columns -> List (Html Msg)
+otherSchedCols cols =
+    [ colView "Default (auto scheduled)" cols.auto
     , colView "By Date" cols.byDate
     , colView "By Day of the Month" cols.byDayOfMonth
     ]
@@ -282,7 +319,7 @@ dateSel (( cat, subject, card ) as cd) =
         [ E.onClick (SchedOpenDatePickerView cd)
         , A.class "flex-1 cursor-pointer mx-1"
         ]
-        [ Html.text "D" ]
+        [ Icons.calendar ]
 
 
 dayOfMonthSel : CardDetails -> Html Msg
@@ -291,7 +328,7 @@ dayOfMonthSel (( cat, subject, card ) as cd) =
         [ E.onClick (SchedOpenDoMPickerView cd)
         , A.class "flex-1 cursor-pointer mx-1"
         ]
-        [ Html.text "M" ]
+        [ Icons.nums ]
 
 
 weekDayAbbr : WeekDay -> String
