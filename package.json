@@ -21,7 +21,7 @@
     "webpack": "^4.5.0",
     "webpack-cli": "^2.0.14",
     "webpack-dev-server": "^3.1.3",
-    "workbox-webpack-plugin": "^3.0.1"
+    "workbox-cli": "^3.2.0"
   },
   "scripts": {
     "watchelm": "find . -name '*.elm' | entr -c elm make src/Main.elm --warn --output /tmp/tmp.js",
@@ -30,6 +30,7 @@
     "build": "webpack --mode production",
     "build:copy:redirects": "cp src/_redirects public/_redirects",
     "build:copy:json": "cp src/test_data.json public/test_data.json",
+    "build:workbox": "workbox injectManifest workbox-config.js",
     "build:functions": "webpack --config webpack.config.functions.js --mode production",
     "dev": "WATCH=true webpack-dev-server --watch --color --progress --mode development",
     "generate_fixtures": "python tests/generate_fixtures.py",
@@ -37,6 +38,7 @@
     "format:js": "prettier  --single-quote --trailing-comma es5 --write \"src/**/*.js\"",
     "clean": "rm -rf public/ functions/ && mkdir public functions",
     "prebuild": "yarn clean && yarn build:copy:redirects && yarn build:copy:json",
+    "postbuild": "yarn build:workbox",
     "predev": "yarn prebuild"
   }
 }

@@ -1,9 +1,8 @@
 const path = require('path');
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const WorkboxPlugin = require('workbox-webpack-plugin');
 
-defaultPlugins = [
+plugins = [
   new HtmlWebpackPlugin(
     {
       title: 'unofficial prayermate',
@@ -14,22 +13,14 @@ defaultPlugins = [
 
 if (process.env.WATCH) {
   elmLoader = 'elm-webpack-loader?debug=true';
-  plugins = defaultPlugins;
 } else {
   elmLoader = 'elm-webpack-loader';
-  plugins = defaultPlugins.concat([
-    new WorkboxPlugin.GenerateSW({
-      globDirectory: './public',
-      globPatterns: ['**/*.{html,js,json}'],
-      swDest: 'sw.js',
-      clientsClaim: true,
-      skipWaiting: true,
-    }),
-  ]);
 }
 
 module.exports = {
-  entry: './src/index.js',
+  entry: [
+    './src/index.js',
+  ],
   plugins: plugins,
   module: {
     rules: [
