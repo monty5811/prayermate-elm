@@ -20,7 +20,10 @@ import Views as V
 
 view : Model -> Html Msg
 view model =
-    Html.main_ [ A.class "min-w-screen min-h-screen bg-blue-lightest" ]
+    Html.main_
+        [ A.class "min-w-screen min-h-screen bg-blue-lightest"
+        , A.style [ ( "font-family", "'Roboto', sans-serif" ) ]
+        ]
         [ navigation model
         , aboutScreen model.about model.showAbout
         , Html.section [ A.class "w-full h-full p-6" ] [ mainContent model ]
@@ -36,6 +39,7 @@ aboutScreen about show =
                 , Html.a [ E.onClick ToggleAbout, A.class "absolute pin-t pin-r pt-4 px-4 cursor-pointer" ] [ Icons.x ]
                 ]
             ]
+
     else
         Html.text ""
 
