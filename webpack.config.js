@@ -1,6 +1,7 @@
 const path = require('path');
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 plugins = [
   new HtmlWebpackPlugin(
@@ -12,10 +13,26 @@ plugins = [
 ]
 
 if (process.env.WATCH) {
-  elmLoader = 'elm-webpack-loader?debug=true';
+  elmDebug = true;
+  elmOpt = false;
 } else {
-  elmLoader = 'elm-webpack-loader';
+  elmDebug = false;
+  elmOpt = true;
 }
+
+new UglifyJsPlugin({
+  uglifyOptions: {
+    warnings: false,
+    parse: {},
+    compress: {},
+    mangle: true, // Note `mangle.properties` is `false` by default.
+    output: null,
+    toplevel: false,
+    nameCache: null,
+    ie8: false,
+    keep_fnames: false,
+  }
+})
 
 module.exports = {
   entry: [
@@ -35,7 +52,11 @@ module.exports = {
       {
         test: /\.elm$/,
         exclude: [/elm-stuff/, /node_modules/],
-        loader: elmLoader,
+        loader: 'elm-webpack-loader',
+        options: {
+          debug: elmDebug,
+          optimize: elmOpt,
+        }
       },
       {
         test: /\.css/,
@@ -50,6 +71,40 @@ module.exports = {
   output: {
     filename: 'bundle.[contenthash].js',
     path: path.resolve(__dirname, 'public')
+  },
+    optimization: {
+        minimizer: [
+        new UglifyJsPlugin({
+          uglifyOptions: {
+            warnings: false,
+            parse: {},
+            compress: {
+                pure_funcs: "F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9",
+                pure_getters: true,
+                keep_fargs: false,
+                unsafe_comps: true,
+                unsafe: true
+            },
+            mangle: false,
+            output: null,
+            toplevel: false,
+            nameCache: null,
+            ie8: false,
+            keep_fnames: false,
+          }}),
+        new UglifyJsPlugin({
+          uglifyOptions: {
+            warnings: false,
+            parse: {},
+            compress: {},
+            mangle: true,
+            output: null,
+            toplevel: false,
+            nameCache: null,
+            ie8: false,
+            keep_fnames: false,
+          }})
+    ]
   },
   devServer: {
     inline: false,

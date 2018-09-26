@@ -10,10 +10,11 @@ module Models
         , initialModel
         )
 
+import Browser.Navigation as Navigation
 import Date exposing (Date)
 import DatePicker
 import DragDrop
-import Editing exposing (Editing(Editing))
+import Editing exposing (Editing(..))
 import Json.Decode
 import Prayermate exposing (Card, Category, PrayerMate, Subject, decodePrayerMate)
 import RemoteData exposing (RemoteData(..), WebData)
@@ -26,21 +27,23 @@ type alias Model =
     , originalPm : WebData PrayerMate
     , cachedData : WebData PrayerMate
     , step : Step
-    , currentTime : Time.Time
+    , currentTime : Time.Posix
     , showAbout : Bool
     , about : WebData String
+    , navKey : Navigation.Key
     }
 
 
-initialModel : { cachedData : String } -> Step -> Model
-initialModel flags step =
+initialModel : Navigation.Key -> { cachedData : String } -> Step -> Model
+initialModel key flags step =
     { pm = NotAsked
     , originalPm = NotAsked
     , cachedData = decodePrayerMate2WebData flags.cachedData
     , step = step
-    , currentTime = 0
+    , currentTime = Time.millisToPosix 0
     , showAbout = False
     , about = NotAsked
+    , navKey = key
     }
 
 
@@ -48,7 +51,7 @@ type Step
     = LandingPage
     | CategoriesList CategoryStep
     | SubjectsList (Editing Category) SubjectStep
-    | CsvConvert String (Maybe (Result (List String) PrayerMate))
+    | CsvConvert String (Maybe PrayerMate)
     | Scheduler SchedulerStep
 
 

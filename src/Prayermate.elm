@@ -47,7 +47,6 @@ import Json.Decode
 import Json.Decode.Pipeline
 import Json.Encode
 import Time
-import Time.Format
 import Util
 
 
@@ -61,7 +60,7 @@ type alias PrayerMate =
 
 decodePrayerMate : Json.Decode.Decoder PrayerMate
 decodePrayerMate =
-    Json.Decode.Pipeline.decode PrayerMate
+    Json.Decode.succeed PrayerMate
         |> Json.Decode.Pipeline.required "Categories" (Json.Decode.list decodeCategory)
         |> Json.Decode.Pipeline.required "Feeds" (Json.Decode.list decodeFeed)
         |> Json.Decode.Pipeline.optional "PrayerMateAndroidVersion" (Json.Decode.maybe Json.Decode.string) Nothing
@@ -70,8 +69,8 @@ decodePrayerMate =
 
 encodePrayerMate : PrayerMate -> Json.Encode.Value
 encodePrayerMate record =
-    [ ( "Categories", Json.Encode.list <| List.map encodeCategory <| record.categories )
-    , ( "Feeds", Json.Encode.list <| List.map encodeFeed <| record.feeds )
+    [ ( "Categories", Json.Encode.list encodeCategory record.categories )
+    , ( "Feeds", Json.Encode.list encodeFeed record.feeds )
     ]
         |> maybeAddStringField "PrayerMateAndroidVersion" record.prayerMateAndroidVersion
         |> maybeAddStringField "PrayerMateVersion" record.prayerMateVersion
@@ -104,7 +103,7 @@ type alias Category =
 
 decodeCategory : Json.Decode.Decoder Category
 decodeCategory =
-    Json.Decode.Pipeline.decode Category
+    Json.Decode.succeed Category
         |> Json.Decode.Pipeline.required "name" Json.Decode.string
         |> Json.Decode.Pipeline.required "createdDate" Json.Decode.string
         |> Json.Decode.Pipeline.required "itemsPerSession" Json.Decode.int
@@ -123,16 +122,16 @@ encodeCategory record =
     , ( "visible", Json.Encode.bool <| record.visible )
     , ( "pinned", Json.Encode.bool <| record.pinned )
     , ( "manualSessionLimit", encodeMaybe Json.Encode.int record.manualSessionLimit )
-    , ( "subjects", Json.Encode.list <| List.map encodeSubject <| record.subjects )
+    , ( "subjects", Json.Encode.list encodeSubject record.subjects )
     ]
         |> maybeAddStringField "syncID" record.syncID
         |> Json.Encode.object
 
 
-newCategory : Time.Time -> String -> Category
+newCategory : Time.Posix -> String -> Category
 newCategory currentTime name =
     { name = name
-    , createdDate = Time.Format.format Util.dateTimeFormat currentTime
+    , createdDate = Util.formatDateTime currentTime
     , itemsPerSession = 1
     , visible = True
     , pinned = False
@@ -156,7 +155,7 @@ type alias Subject =
 
 decodeSubject : Json.Decode.Decoder Subject
 decodeSubject =
-    Json.Decode.Pipeline.decode Subject
+    Json.Decode.succeed Subject
         |> Json.Decode.Pipeline.required "name" Json.Decode.string
         |> Json.Decode.Pipeline.required "createdDate" Json.Decode.string
         |> Json.Decode.Pipeline.optional "lastPrayed" (Json.Decode.maybe Json.Decode.string) Nothing
@@ -173,7 +172,7 @@ encodeSubject record =
     , ( "createdDate", Json.Encode.string <| record.createdDate )
     , ( "priorityLevel", Json.Encode.int <| record.priorityLevel )
     , ( "seenCount", Json.Encode.int <| record.seenCount )
-    , ( "cards", Json.Encode.list <| List.map encodeCard <| record.cards )
+    , ( "cards", Json.Encode.list encodeCard record.cards )
     ]
         |> maybeAddStringField "schedulingTimestamp" record.schedulingTimestamp
         |> maybeAddStringField "lastPrayed" record.lastPrayed
@@ -181,10 +180,10 @@ encodeSubject record =
         |> Json.Encode.object
 
 
-newSubject : Time.Time -> String -> Maybe String -> Subject
+newSubject : Time.Posix -> String -> Maybe String -> Subject
 newSubject currentTime name cardText =
     { name = name
-    , createdDate = Time.Format.format Util.dateTimeFormat currentTime
+    , createdDate = Util.formatDateTime currentTime
     , lastPrayed = Nothing
     , schedulingTimestamp = Nothing
     , syncID = Nothing
@@ -282,7 +281,7 @@ getSelectedDates card =
         Date dates ->
             dates
                 |> String.split ","
-                |> List.map (Date.fromString >> Result.toMaybe)
+                |> List.map (String.replace "T00:00" "" >> Date.fromIsoString >> Result.toMaybe)
                 |> List.filterMap identity
 
         DayOfMonth _ ->
@@ -341,7 +340,7 @@ cardHelp raw =
 
 decodeRawCard : Json.Decode.Decoder RawCard
 decodeRawCard =
-    Json.Decode.Pipeline.decode RawCard
+    Json.Decode.succeed RawCard
         |> Json.Decode.Pipeline.optional "text" (Json.Decode.maybe Json.Decode.string) Nothing
         |> Json.Decode.Pipeline.required "archived" Json.Decode.bool
         |> Json.Decode.Pipeline.optional "autoArchiveDate" (Json.Decode.maybe Json.Decode.string) Nothing
@@ -394,10 +393,10 @@ dayOfTheWeekMaskToInt mask =
         |> List.map dayToNum
         |> List.sum
         |> convert2base 10
-        |> List.map toString
+        |> List.map String.fromInt
         |> String.join ""
         |> String.toInt
-        |> Result.withDefault 0
+        |> Maybe.withDefault 0
 
 
 dayToNum : WeekDay -> Int
@@ -432,7 +431,7 @@ convert2base b num =
             if n == 0 then
                 []
             else
-                (n % b) :: digits (n // b)
+                modBy b n :: digits (n // b)
     in
     digits num
         |> List.reverse
@@ -447,13 +446,13 @@ padZeros total list =
     List.repeat numberOfZeros 0 ++ list
 
 
-newCard : Time.Time -> Maybe String -> Card
+newCard : Time.Posix -> Maybe String -> Card
 newCard currentTime text =
     { text = text
     , archived = False
     , autoArchiveDate = Nothing
     , syncID = Nothing
-    , createdDate = Time.Format.format Util.dateTimeFormat currentTime
+    , createdDate = Util.formatDateTime currentTime
     , schedulingMode = Default
     , lastPrayed = Nothing
     , seenCount = 0
@@ -473,7 +472,7 @@ type alias Feed =
 
 decodeFeed : Json.Decode.Decoder Feed
 decodeFeed =
-    Json.Decode.Pipeline.decode Feed
+    Json.Decode.succeed Feed
         |> Json.Decode.Pipeline.optional "description" (Json.Decode.maybe Json.Decode.string) Nothing
         |> Json.Decode.Pipeline.required "name" Json.Decode.string
         |> Json.Decode.Pipeline.optional "subscribedAt" (Json.Decode.maybe Json.Decode.string) Nothing
@@ -524,7 +523,7 @@ addScheduling card l =
         DayOfMonth days ->
             ( "schedulingMode", Json.Encode.int 3 )
                 :: ( "dayOfTheWeekMask", Json.Encode.int 0 )
-                :: ( "scheduledDaysOfMonth", Json.Encode.list (List.map Json.Encode.int days) )
+                :: ( "scheduledDaysOfMonth", Json.Encode.list Json.Encode.int days )
                 :: l
 
 
@@ -575,17 +574,17 @@ maybeAddSubject sub newCat currentCat =
         currentCat
 
 
-addNewSubject : Time.Time -> String -> Category -> Category
+addNewSubject : Time.Posix -> String -> Category -> Category
 addNewSubject currentTime name cat =
     { cat | subjects = List.append cat.subjects [ newSubject currentTime name Nothing ] }
 
 
-addEmptyCard : Time.Time -> Subject -> Category -> Category
+addEmptyCard : Time.Posix -> Subject -> Category -> Category
 addEmptyCard currentTime sub cat =
     { cat | subjects = List.map (addEmptyCardHelp currentTime sub) cat.subjects }
 
 
-addEmptyCardHelp : Time.Time -> Subject -> Subject -> Subject
+addEmptyCardHelp : Time.Posix -> Subject -> Subject -> Subject
 addEmptyCardHelp currentTime sub2change currentSub =
     if sub2change == currentSub then
         { currentSub | cards = newCard currentTime Nothing :: currentSub.cards }
@@ -618,7 +617,7 @@ dropSubject sub startCat destCat catList =
             |> Util.replaceItem startCat updatedStartCat
 
 
-addNewCategory : Time.Time -> String -> PrayerMate -> PrayerMate
+addNewCategory : Time.Posix -> String -> PrayerMate -> PrayerMate
 addNewCategory currentTime name pm =
     { pm | categories = newCategory currentTime name :: pm.categories }
 

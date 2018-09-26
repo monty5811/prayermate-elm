@@ -91,13 +91,12 @@ gridWithOptions opts attrs nodes =
                 nNodes
     in
     Html.div
-        (A.style
-            [ ( "display", "grid" )
-            , ( "grid-template-columns", "repeat(" ++ (cols |> toString) ++ ", 1fr)" )
-            , ( "grid-gap", toString opts.gridGap ++ "px" )
-            , ( "grid-auto-rows", "minmax(" ++ toString opts.minHeight ++ "px, auto)" )
-            ]
-            :: attrs
+        ([ A.style "display" "grid"
+         , A.style "grid-template-columns" ("repeat(" ++ String.fromInt cols ++ ", 1fr)")
+         , A.style "grid-gap" (String.fromInt opts.gridGap ++ "px")
+         , A.style "grid-auto-rows" ("minmax(" ++ String.fromInt opts.minHeight ++ "px, auto)")
+         ]
+            ++ attrs
         )
         nodes
 
@@ -125,13 +124,12 @@ defaultKanBanOptions =
 kanbanWithOptions : KanBanOptions -> List (Html.Attribute msg) -> List (Html msg) -> Html msg
 kanbanWithOptions opts attrs nodes =
     Html.div
-        (A.style
-            [ ( "display", "grid" )
-            , ( "grid-template-columns", "repeat(" ++ (List.length nodes |> toString) ++ ", " ++ toString opts.colWidth ++ "px)" )
-            , ( "grid-gap", toString opts.gridGap ++ "px" )
-            , ( "grid-auto-rows", "minmax(" ++ toString opts.minHeight ++ "px, auto)" )
-            ]
-            :: attrs
+        ([ A.style "display" "grid"
+         , A.style "grid-template-columns" ("repeat(" ++ (List.length nodes |> String.fromInt) ++ ", " ++ String.fromInt opts.colWidth ++ "px)")
+         , A.style "grid-gap" (String.fromInt opts.gridGap ++ "px")
+         , A.style "grid-auto-rows" ("minmax(" ++ String.fromInt opts.minHeight ++ "px, auto)")
+         ]
+            ++ attrs
         )
         nodes
 

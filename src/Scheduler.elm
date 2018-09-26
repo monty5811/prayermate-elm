@@ -11,6 +11,7 @@ import Markdown
 import Messages exposing (Msg(..))
 import Models exposing (SchedulerStep(..))
 import Prayermate exposing (..)
+import Time
 import Views as V exposing (GridOptions, defaultGridOptions, gridWithOptions)
 
 
@@ -31,7 +32,6 @@ type alias Columns =
     , thurs : List CardDetails
     , fri : List CardDetails
     , sat : List CardDetails
-    , sun : List CardDetails
     , auto : List CardDetails
     , everyDayByPriorityLevel : List CardDetails
     , byDayOfMonth : List CardDetails
@@ -41,7 +41,7 @@ type alias Columns =
 
 emptyColumns : Columns
 emptyColumns =
-    Columns [] [] [] [] [] [] [] [] [] [] [] []
+    Columns [] [] [] [] [] [] [] [] [] [] []
 
 
 getColumns : PrayerMate -> Columns
@@ -197,14 +197,7 @@ datePickerDateItem date =
 
 formatDate : Date -> String
 formatDate date =
-    DateFormat.format
-        [ DateFormat.dayOfMonthSuffix
-        , DateFormat.text " "
-        , DateFormat.monthNameFull
-        , DateFormat.text ", "
-        , DateFormat.yearNumber
-        ]
-        date
+    Date.toIsoString date
 
 
 dayOfMonthPickerView : CardDetails -> List Int -> Html Msg
@@ -230,7 +223,7 @@ dayOfMonthDay selectedDays currentDay =
                 "bg-grey"
         , E.onClick <| SchedDoMToggleDay currentDay
         ]
-        [ Html.text <| toString currentDay ]
+        [ Html.text <| String.fromInt currentDay ]
 
 
 dayOfWeekCols : Columns -> List (Html Msg)

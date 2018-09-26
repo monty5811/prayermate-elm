@@ -1,4 +1,4 @@
-const Elm = require('./Main.elm');
+const { Elm } = require('./Main.elm');
 
 require('./about.md');
 require('../node_modules/tailwindcss/dist/tailwind.min.css');
@@ -27,8 +27,8 @@ function registerSW() {
 
 function handleDOMContentLoaded() {
   // setup elm
-  const app = Elm.Main.fullscreen({
-    cachedData: localStorage.getItem(LOCAL_STORAGE_KEY) || '',
+  const app = Elm.Main.init({
+    flags: {cachedData: localStorage.getItem(LOCAL_STORAGE_KEY) || ''},
   });
   app.ports.saveData.subscribe(function(data) {
     save2LS(data);

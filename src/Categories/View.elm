@@ -1,13 +1,13 @@
 module Categories.View exposing (view)
 
 import DragDrop
-import Editing exposing (Editing(Editing, NoSelected))
+import Editing exposing (Editing(..))
 import Html exposing (Html)
 import Html.Attributes as A
 import Html.Events as E
 import Icons
 import Messages exposing (Msg(..))
-import Models exposing (CategoryStep(CreateCat, DeleteCat, EditCat, EditSubject, ViewCats))
+import Models exposing (CategoryStep(..))
 import Prayermate exposing (Card, Category, PrayerMate, Subject)
 import Subjects.View exposing (viewSubjectEdit)
 import Views as V
@@ -60,12 +60,14 @@ viewCategory step cat =
         EditCat (Editing originalCat modifiedCat) ->
             if cat == originalCat then
                 viewCategoryEdit modifiedCat
+
             else
                 viewCategoryNoEdit Nothing cat
 
         DeleteCat cat2Delete ->
             if cat == cat2Delete then
                 viewCategoryDelete
+
             else
                 viewCategoryNoEdit Nothing cat
 
@@ -75,6 +77,7 @@ viewCategory step cat =
         EditSubject dndState eCat eSub ->
             if eCat == cat then
                 viewCategoryEditSubject cat eSub
+
             else
                 viewCategoryNoEdit dndState cat
 
@@ -90,6 +93,7 @@ viewCategoryNoEdit dndModel cat =
         dropClass =
             if DragDrop.isOver dndModel cat then
                 "bg-green-light"
+
             else
                 ""
     in
@@ -128,6 +132,7 @@ subjectCard dndModel cat sub =
         dragClass =
             if DragDrop.isDragged dndModel sub then
                 "bg-grey-darker text-grey"
+
             else
                 "bg-grey-light"
     in

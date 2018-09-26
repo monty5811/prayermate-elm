@@ -1,12 +1,12 @@
 module Route exposing (route)
 
-import Models exposing (Step(CsvConvert, LandingPage))
-import UrlParser as Url exposing (s, top)
+import Models exposing (Step(..))
+import Url.Parser exposing (Parser, map, oneOf, s, top)
 
 
-route : Url.Parser (Step -> a) a
+route : Parser (Step -> a) a
 route =
-    Url.oneOf
-        [ Url.map LandingPage top
-        , Url.map (CsvConvert "" Nothing) (s "csv")
+    oneOf
+        [ map LandingPage top
+        , map (CsvConvert "" Nothing) (s "csv")
         ]

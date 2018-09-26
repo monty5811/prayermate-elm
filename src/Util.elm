@@ -1,16 +1,19 @@
 module Util
     exposing
-        ( dateTimeFormat
-        , focusInput
+        ( focusInput
+        , formatDateTime
         , replaceItem
         , toWebData
         )
 
+import Browser.Dom
+import DateFormat as DF
 import Dict
-import Dom
 import Http
+import Json.Decode
 import RemoteData exposing (RemoteData(..), WebData)
 import Task
+import Time
 
 
 replaceItem : a -> a -> List a -> List a
@@ -28,15 +31,27 @@ replaceItemHelp orig modif current =
 
 focusInput : msg -> Cmd msg
 focusInput msg =
-    Task.attempt (\_ -> msg) (Dom.focus "focusable")
+    Task.attempt (\_ -> msg) (Browser.Dom.focus "focusable")
 
 
-dateTimeFormat : String
-dateTimeFormat =
-    "%Y-%m-%dT%H:%M"
+formatDateTime : Time.Posix -> String
+formatDateTime t =
+    DF.format
+        [ DF.yearNumber
+        , DF.text "-"
+        , DF.monthFixed
+        , DF.text "-"
+        , DF.dayOfMonthFixed
+        , DF.text "T"
+        , DF.hourMilitaryFixed
+        , DF.text ":"
+        , DF.minuteFixed
+        ]
+        Time.utc
+        t
 
 
-toWebData : RemoteData e a -> WebData a
+toWebData : RemoteData Json.Decode.Error a -> WebData a
 toWebData remote =
     case remote of
         NotAsked ->
@@ -47,7 +62,7 @@ toWebData remote =
 
         Failure err ->
             Failure <|
-                Http.BadPayload (toString err)
+                Http.BadPayload (Json.Decode.errorToString err)
                     { url = ""
                     , status = { code = -1, message = "" }
                     , headers = Dict.empty

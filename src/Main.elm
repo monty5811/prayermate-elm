@@ -1,42 +1,50 @@
 module Main exposing (main)
 
+import Browser
+import Browser.Navigation as Navigation
 import Http
 import Messages exposing (Msg(..))
 import Models exposing (Model, Step(..), decodePrayerMate2WebData, initialCategoriesStep, initialModel)
-import Navigation
 import Ports exposing (dropboxLinkRead, fileContentRead, fileSelected)
 import Prayermate exposing (PrayerMate, encodePrayerMate)
 import RemoteData exposing (RemoteData(..), WebData)
 import Route
 import Time
 import Update
-import UrlParser
+import Url
+import Url.Parser
 import View exposing (view)
 
 
 main : Program Flags Model Msg
 main =
-    Navigation.programWithFlags
-        UrlChange
+    Browser.application
         { init = init
-        , update = update
         , view = view
+        , update = update
         , subscriptions = subscriptions
+        , onUrlRequest = urlRequest
+        , onUrlChange = UrlChange
         }
 
 
-init : Flags -> Navigation.Location -> ( Model, Cmd Msg )
-init flags loc =
+urlRequest : Browser.UrlRequest -> Msg
+urlRequest req =
+    NoOp
+
+
+init : Flags -> Url.Url -> Navigation.Key -> ( Model, Cmd Msg )
+init flags loc navKey =
     let
         page =
             location2step loc
     in
-    ( initialModel flags page, fetchAbout )
+    ( initialModel navKey flags page, fetchAbout )
 
 
-location2step : Navigation.Location -> Step
-location2step location =
-    UrlParser.parsePath Route.route location
+location2step : Url.Url -> Step
+location2step url =
+    Url.Parser.parse Route.route url
         |> Maybe.withDefault LandingPage
 
 
@@ -81,7 +89,7 @@ subscriptions _ =
     Sub.batch
         [ fileContentRead FileRead
         , dropboxLinkRead ReceiveDropboxLink
-        , Time.every Time.second (\t -> ReceiveTime t)
+        , Time.every 1000 (\t -> ReceiveTime t)
         ]
 
 

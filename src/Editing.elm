@@ -1,4 +1,4 @@
-module Editing exposing (Editing(Editing, NoSelected), map, modified, original)
+module Editing exposing (Editing(..), map, modified, original)
 
 
 type Editing a
@@ -12,8 +12,8 @@ map fn ed =
         NoSelected ->
             NoSelected
 
-        Editing orig modified ->
-            Editing orig (fn modified)
+        Editing orig mod ->
+            Editing orig (fn mod)
 
 
 original : Editing a -> Maybe a

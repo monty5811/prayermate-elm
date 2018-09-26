@@ -155,11 +155,11 @@ roundTripString enc dec str =
                 |> Expect.equal (Ok val)
 
         Err err ->
-            Expect.fail err
+            Expect.fail <| Decode.errorToString err
 
 
 dayOfTheWeekMaskTest : ( Int, DayOfWeekMask ) -> Test
 dayOfTheWeekMaskTest ( mask, days ) =
-    test (toString mask) <|
+    test (String.fromInt mask) <|
         \_ ->
             Expect.equal (intToDayOfTheWeekMask mask) days

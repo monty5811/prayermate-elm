@@ -2,9 +2,11 @@ const path = require('path');
 const webpack = require("webpack");
 
 if (process.env.WATCH) {
-  elmLoader = 'elm-webpack-loader?debug=true';
+  elmDebug = true;
+  elmOpt = false;
 } else {
-  elmLoader = 'elm-webpack-loader';
+  elmDebug = false;
+  elmOpt = true;
 }
 
 module.exports = {
@@ -26,7 +28,11 @@ module.exports = {
       {
         test: /\.elm$/,
         exclude: [/elm-stuff/, /node_modules/],
-        loader: elmLoader,
+        loader: 'elm-webpack-loader',
+        options: {
+          debug: elmDebug,
+          optimize: elmOpt,
+        }
       },
       {
         test: /\.css/,

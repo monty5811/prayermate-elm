@@ -2,7 +2,7 @@ module DragDrop
     exposing
         ( Model
         , Msg
-        , Res(Dragging, DraggingCancelled, Dropped)
+        , Res(..)
         , draggable
         , droppable
         , init
@@ -122,11 +122,13 @@ onDragStart msg =
 
 onDragEnter : msg -> Html.Attribute msg
 onDragEnter msg =
-    E.onWithOptions "dragover"
-        { preventDefault = True
-        , stopPropagation = False
-        }
-        (Json.Decode.succeed msg)
+    E.custom "dragover"
+        (Json.Decode.succeed
+            { message = msg
+            , preventDefault = True
+            , stopPropagation = True
+            }
+        )
 
 
 onDragEnd : msg -> Html.Attribute msg
@@ -136,20 +138,24 @@ onDragEnd msg =
 
 onDragLeave : msg -> Html.Attribute msg
 onDragLeave msg =
-    E.onWithOptions "dragleave"
-        { preventDefault = True
-        , stopPropagation = False
-        }
-        (Json.Decode.succeed msg)
+    E.custom "dragleave"
+        (Json.Decode.succeed
+            { message = msg
+            , preventDefault = True
+            , stopPropagation = True
+            }
+        )
 
 
 onDrop : msg -> Html.Attribute msg
 onDrop msg =
-    E.onWithOptions "drop"
-        { preventDefault = True
-        , stopPropagation = True
-        }
-        (Json.Decode.succeed msg)
+    E.custom "drop"
+        (Json.Decode.succeed
+            { message = msg
+            , preventDefault = True
+            , stopPropagation = True
+            }
+        )
 
 
 

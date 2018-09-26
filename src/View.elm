@@ -1,5 +1,6 @@
 module View exposing (view)
 
+import Browser
 import Categories.View as Cat
 import CsvConvert
 import Html exposing (Html)
@@ -18,16 +19,20 @@ import Subjects.View as Subj
 import Views as V
 
 
-view : Model -> Html Msg
+view : Model -> Browser.Document Msg
 view model =
-    Html.main_
-        [ A.class "min-w-screen min-h-screen bg-blue-lightest"
-        , A.style [ ( "font-family", "'Roboto', sans-serif" ) ]
+    { title = "unofficial prayermate"
+    , body =
+        [ Html.main_
+            [ A.class "min-w-screen min-h-screen bg-blue-lightest"
+            , A.style "font-family" "'Roboto', sans-serif"
+            ]
+            [ navigation model
+            , aboutScreen model.about model.showAbout
+            , Html.section [ A.class "w-full h-full p-6" ] [ mainContent model ]
+            ]
         ]
-        [ navigation model
-        , aboutScreen model.about model.showAbout
-        , Html.section [ A.class "w-full h-full p-6" ] [ mainContent model ]
-        ]
+    }
 
 
 aboutScreen : WebData String -> Bool -> Html Msg
@@ -39,7 +44,6 @@ aboutScreen about show =
                 , Html.a [ E.onClick ToggleAbout, A.class "absolute pin-t pin-r pt-4 px-4 cursor-pointer" ] [ Icons.x ]
                 ]
             ]
-
     else
         Html.text ""
 
@@ -77,7 +81,7 @@ exportButton model =
         ( CategoriesList (ViewCats _), Success pm ) ->
             exportButtonHelp pm
 
-        ( CsvConvert _ (Just (Ok pm)), _ ) ->
+        ( CsvConvert _ (Just pm), _ ) ->
             exportButtonHelp pm
 
         ( Scheduler MainView, Success pm ) ->
@@ -91,7 +95,7 @@ exportButtonHelp : PrayerMate -> Html msg
 exportButtonHelp pm =
     Html.a
         [ A.href <| exportb64 pm
-        , A.downloadAs "unofficial_prayemate_export.json"
+        , A.download "unofficial_prayemate_export.json"
         ]
         [ V.greenButton [] [ Html.text "Export" ] ]
 
@@ -109,7 +113,7 @@ goToSchedulerButton { step } =
 goToKanbanButton : Model -> Html Msg
 goToKanbanButton model =
     case model.step of
-        CsvConvert _ (Just (Ok data)) ->
+        CsvConvert _ (Just data) ->
             case data.categories of
                 [] ->
                     V.greyButton [] [ Html.text "Go To Editor" ]

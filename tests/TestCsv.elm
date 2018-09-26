@@ -6,6 +6,7 @@ import Fixtures
 import Json.Decode as Decode
 import Prayermate exposing (Card, Category, PrayerMate, Subject, decodePrayerMate)
 import Test exposing (Test, describe, test)
+import Time
 
 
 csv : Test
@@ -23,23 +24,20 @@ csv =
 
 
 csvMatchesJson : String -> String -> Expect.Expectation
-csvMatchesJson csv json =
+csvMatchesJson csvStr json =
     let
         jsonModelResult =
             Decode.decodeString decodePrayerMate json
 
-        maybeCsvModelResult =
-            parseCsvData 0 csv
+        maybeCsvModel =
+            parseCsvData (Time.millisToPosix 0) csvStr
     in
-    case ( maybeCsvModelResult, jsonModelResult ) of
-        ( Ok csvModel, Ok jsonModel ) ->
+    case ( maybeCsvModel, jsonModelResult ) of
+        ( csvModel, Ok jsonModel ) ->
             Expect.equal (simplifyPm csvModel) (simplifyPm jsonModel)
 
-        ( Err err, _ ) ->
-            Expect.fail ("Csv Parsing failed: " ++ String.join ", " err)
-
         ( _, Err err ) ->
-            Expect.fail ("Json Parsing failed: " ++ err)
+            Expect.fail ("Json Parsing failed: " ++ Decode.errorToString err)
 
 
 {-| Remove extra information from the `PrayerMate` type, sort and remove empty lists as teh csv import will ignore them

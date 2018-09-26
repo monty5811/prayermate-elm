@@ -8,12 +8,11 @@ import Json.Decode
 import Messages exposing (Msg(..))
 import Prayermate exposing (Card, Category, PrayerMate, Subject, newSubject)
 import Time
-import Time.Format
 import Util
 import Views as V exposing (defaultGridOptions)
 
 
-view : String -> Maybe (Result (List String) PrayerMate) -> Html Msg
+view : String -> Maybe PrayerMate -> Html Msg
 view raw parsed =
     Html.div []
         [ Html.h2 [] [ Html.text "CSV Convertor" ]
@@ -42,19 +41,19 @@ view raw parsed =
         ]
 
 
-parsedView : Maybe (Result (List String) PrayerMate) -> Html msg
+parsedView : Maybe PrayerMate -> Html msg
 parsedView parsed =
     case parsed of
         Nothing ->
             Html.text ""
 
-        Just res ->
-            case res of
-                Ok pm ->
-                    pmTree pm
+        Just pm ->
+            pmTree pm
 
-                Err errs ->
-                    Html.div [ A.class "overflow-y-scroll" ] (List.map (\e -> Html.p [] [ Html.text e ]) errs)
+
+
+--Err errs ->
+--    Html.div [ A.class "overflow-y-scroll" ] (List.map (\e -> Html.p [] [ Html.text e ]) errs)
 
 
 pmTree : PrayerMate -> Html msg
@@ -88,14 +87,14 @@ cardView card =
                 Html.li [] [ Html.text content ]
 
 
-parseCsvData : Time.Time -> String -> Result (List String) PrayerMate
+parseCsvData : Time.Posix -> String -> PrayerMate
 parseCsvData currentTime csv =
     csv
         |> Csv.parse
-        |> Result.map (buildPM currentTime)
+        |> buildPM currentTime
 
 
-buildPM : Time.Time -> Csv.Csv -> PrayerMate
+buildPM : Time.Posix -> Csv.Csv -> PrayerMate
 buildPM currentTime csv =
     { categories = csv2Categories currentTime csv
     , feeds = []
@@ -104,12 +103,12 @@ buildPM currentTime csv =
     }
 
 
-csv2Categories : Time.Time -> Csv.Csv -> List Category
+csv2Categories : Time.Posix -> Csv.Csv -> List Category
 csv2Categories currentTime csv =
     List.foldl (addSubject currentTime) [] (csv.headers :: csv.records)
 
 
-addSubject : Time.Time -> List String -> List Category -> List Category
+addSubject : Time.Posix -> List String -> List Category -> List Category
 addSubject currentTime raw cats =
     case raw of
         [ cat, sub, content ] ->
@@ -129,7 +128,7 @@ addSubject currentTime raw cats =
             cats
 
 
-addNew : Time.Time -> List Category -> String -> String -> String -> List Category
+addNew : Time.Posix -> List Category -> String -> String -> String -> List Category
 addNew currentTime cats catName subName content =
     if List.member catName (List.map .name cats) then
         -- category exists, add subject
@@ -139,7 +138,7 @@ addNew currentTime cats catName subName content =
         cats ++ [ createNewCatWithSubject currentTime catName subName content ]
 
 
-updateCatWithSubject : Time.Time -> String -> String -> String -> Category -> Category
+updateCatWithSubject : Time.Posix -> String -> String -> String -> Category -> Category
 updateCatWithSubject currentTime catName subName content cat =
     if cat.name == catName then
         { cat | subjects = cat.subjects ++ [ newSubject currentTime subName (Just content) ] }
@@ -147,10 +146,10 @@ updateCatWithSubject currentTime catName subName content cat =
         cat
 
 
-createNewCatWithSubject : Time.Time -> String -> String -> String -> Category
+createNewCatWithSubject : Time.Posix -> String -> String -> String -> Category
 createNewCatWithSubject currentTime catName subName content =
     { name = catName
-    , createdDate = Time.Format.format Util.dateTimeFormat currentTime
+    , createdDate = Util.formatDateTime currentTime
     , itemsPerSession = 1
     , visible = True
     , pinned = False

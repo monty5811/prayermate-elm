@@ -1,19 +1,20 @@
 module Update exposing (update)
 
+import Browser.Navigation as Navigation
 import CsvConvert exposing (parseCsvData)
 import Date
 import DateFormat
 import DatePicker
-import DragDrop exposing (Res(Dragging, DraggingCancelled, Dropped))
-import Editing exposing (Editing(Editing, NoSelected))
+import DragDrop exposing (Res(..))
+import Editing exposing (Editing(..))
 import Http
 import Json.Decode
 import Messages exposing (Msg(..))
 import Models exposing (..)
-import Navigation
 import Ports exposing (fileSelected, openDropboxChooser)
 import Prayermate exposing (..)
 import RemoteData exposing (RemoteData(..), WebData)
+import Time
 import Util
 
 
@@ -116,16 +117,16 @@ update msg model =
             case model.step of
                 CsvConvert _ parsedData ->
                     case parsedData of
-                        Just (Ok pm) ->
+                        Just pm ->
                             ( { model
                                 | step = initialCategoriesStep
                                 , pm = Success pm
                                 , originalPm = Success pm
                               }
-                            , Navigation.modifyUrl "/"
+                            , Navigation.replaceUrl model.navKey "/"
                             )
 
-                        _ ->
+                        Nothing ->
                             ( model, Cmd.none )
 
                 _ ->
@@ -678,13 +679,13 @@ update msg model =
                             Scheduler << DatePickerView newDatePicker cd
                     in
                     case dateEvent of
-                        DatePicker.NoChange ->
+                        DatePicker.FailedInput _ ->
                             ( { model | step = step selectedDays }, Cmd.map SetDatePicker datePickerCmd )
 
-                        DatePicker.Changed Nothing ->
+                        DatePicker.None ->
                             ( { model | step = step selectedDays }, Cmd.map SetDatePicker datePickerCmd )
 
-                        DatePicker.Changed (Just newDate) ->
+                        DatePicker.Picked newDate ->
                             if List.member newDate selectedDays then
                                 ( { model | step = step selectedDays }, Cmd.map SetDatePicker datePickerCmd )
                             else
@@ -759,15 +760,7 @@ saveDateChange selectedDates ( cat, subject, card ) model =
 -}
 pmDateFmt : Date.Date -> String
 pmDateFmt date =
-    DateFormat.format
-        [ DateFormat.yearNumber
-        , DateFormat.text "-"
-        , DateFormat.monthFixed
-        , DateFormat.text "-"
-        , DateFormat.dayOfMonthFixed
-        , DateFormat.text "T00:00"
-        ]
-        date
+    Date.toIsoString date ++ "T00:00"
 
 
 saveDoMChange : List Int -> ( Category, Subject, Card ) -> Model -> ( Model, Cmd Msg )

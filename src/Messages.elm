@@ -4,18 +4,18 @@ import Date exposing (Date)
 import DatePicker
 import DragDrop
 import Json.Encode
-import Navigation exposing (Location)
 import Prayermate exposing (Card, Category, PrayerMate, Subject, WeekDay)
 import RemoteData exposing (WebData)
 import Time
+import Url
 
 
 type Msg
     = NoOp
     | ToggleAbout
     | ReceiveAbout (WebData String)
-    | ReceiveTime Time.Time
-    | UrlChange Location
+    | ReceiveTime Time.Posix
+    | UrlChange Url.Url
     | LoadDemoData
     | LoadDropBoxData
     | LoadPreviousSession

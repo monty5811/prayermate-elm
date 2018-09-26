@@ -1,7 +1,7 @@
 port module Main exposing (main)
 
 import Base64
-import CsvConvert exposing (parseCsvData)
+import Csv
 import Json.Decode
 import Json.Decode.Pipeline
 import Json.Encode

@@ -1,17 +1,17 @@
-module Icons
-    exposing
-        ( calendar
-        , cornerUpLeft
-        , edit
-        , move
-        , nums
-        , plus
-        , x
-        )
+module Icons exposing
+    ( calendar
+    , cornerUpLeft
+    , edit
+    , move
+    , nums
+    , plus
+    , x
+    )
 
 import Html exposing (Html)
 import Svg exposing (Svg, svg)
 import Svg.Attributes as A
+
 
 
 -- https://1602.github.io/elm-feather-icons/
