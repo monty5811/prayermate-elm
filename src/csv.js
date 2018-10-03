@@ -1,9 +1,11 @@
-const Elm = require('./CSVWorker.elm');
+const { Elm } = require('./CSVWorker.elm');
 
 exports.handler = function(event, context, callback) {
-  const app = Elm.Main.worker({
-    event: event,
-    now: Date.now(),
+  const app = Elm.CSVWorker.init({
+    flags: {
+      event: event,
+      now: Date.now(),
+    },
   });
 
   app.ports.toJS.subscribe(function(data) {
@@ -19,4 +21,4 @@ exports.handler = function(event, context, callback) {
       });
     }
   });
-}
+};

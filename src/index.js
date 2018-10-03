@@ -28,7 +28,7 @@ function registerSW() {
 function handleDOMContentLoaded() {
   // setup elm
   const app = Elm.Main.init({
-    flags: {cachedData: localStorage.getItem(LOCAL_STORAGE_KEY) || ''},
+    flags: { cachedData: localStorage.getItem(LOCAL_STORAGE_KEY) || '' },
   });
   app.ports.saveData.subscribe(function(data) {
     save2LS(data);
@@ -60,13 +60,15 @@ function handleDOMContentLoaded() {
 
   app.ports.openDropboxChooser.subscribe(function openDb() {
     const options = {
-      success: function (files) {app.ports.dropboxLinkRead.send(files[0].link)},
+      success: function(files) {
+        app.ports.dropboxLinkRead.send(files[0].link);
+      },
       linkType: 'direct',
       multiselect: false,
-      extensions: ['.json', ],
+      extensions: ['.json'],
       folderselect: false,
     };
-    Dropbox.choose(options)
+    Dropbox.choose(options);
   });
 
   registerSW();
