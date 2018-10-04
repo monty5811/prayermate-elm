@@ -316,6 +316,20 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
+        CatEditUpdateCardText newText ->
+            case model.step of
+                CategoriesList (EditSubject dnd cat eSub) ->
+                    ( { model
+                        | step =
+                            CategoriesList <|
+                                EditSubject dnd cat (Editing.map (updateSubjectCardText newText) eSub)
+                      }
+                    , Cmd.none
+                    )
+
+                _ ->
+                    ( model, Cmd.none )
+
         DnD msg_ ->
             case model.step of
                 CategoriesList (ViewCats oldDndModel) ->
@@ -703,6 +717,27 @@ update msg model =
 
                 _ ->
                     ( model, Cmd.none )
+
+
+updateSubjectCardText : String -> Subject -> Subject
+updateSubjectCardText newText subject =
+    case subject.cards of
+        [ card ] ->
+            let
+                newCard =
+                    { card | text = Just newText }
+            in
+            { subject | cards = [ newCard ] }
+
+        card :: rest ->
+            let
+                newCard =
+                    { card | text = Just newText }
+            in
+            { subject | cards = newCard :: rest }
+
+        _ ->
+            subject
 
 
 toggleDay : Int -> List Int -> List Int

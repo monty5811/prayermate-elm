@@ -136,7 +136,7 @@ kanbanWithOptions opts attrs nodes =
 
 form : List (Html.Attribute msg) -> List (Html msg) -> Html msg
 form attrs nodes =
-    Html.form (A.class "bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4" :: attrs) nodes
+    Html.form (A.class "bg-white shadow-md rounded px-2 pt-6 pb-8 mb-4" :: attrs) nodes
 
 
 textInput : (String -> msg) -> String -> Html msg

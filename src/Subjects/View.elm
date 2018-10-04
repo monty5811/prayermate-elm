@@ -87,7 +87,6 @@ viewSubject step sub =
                 EditSubjectName (Editing originalSub modifiedSub) ->
                     if sub == originalSub then
                         viewSubjectEdit viewSubjectEditProps modifiedSub
-
                     else
                         viewSubjectNoEdit sub
 
@@ -97,7 +96,6 @@ viewSubject step sub =
                 DeleteSubject sub2Delete ->
                     if sub == sub2Delete then
                         viewSubjectDelete
-
                     else
                         viewSubjectNoEdit sub
 
@@ -129,7 +127,6 @@ viewSubjectEditingCard currentSub subWeAreEditing editingCard =
                     , V.textArea 30 EditCardUpdateText (Maybe.withDefault "" modifiedCard.text)
                     ]
                 ]
-
             else
                 viewSubjectNoEdit currentSub
 
@@ -145,7 +142,6 @@ viewSubjectNoEdit sub =
     , Html.h3 [ A.class "pb-2" ] [ Html.text sub.name ]
     , if List.length sub.cards > 0 then
         Html.div [] <| List.map (viewCard sub) sub.cards
-
       else
         V.greenButton [ E.onClick <| CreateEmptyCard sub ] [ Icons.plus ]
     ]
@@ -168,10 +164,21 @@ viewSubjectEdit props modifiedSub =
     [ V.form
         [ E.onSubmit props.save ]
         [ V.textInput props.updateName modifiedSub.name
+        , V.textArea 25 CatEditUpdateCardText (getCardText modifiedSub)
         , V.greenButton [ E.onClick props.save ] [ Html.text "Save" ]
         , V.greyButton [ E.onClick props.cancel ] [ Html.text "Cancel" ]
         ]
     ]
+
+
+getCardText : Subject -> String
+getCardText sub =
+    case List.head sub.cards of
+        Nothing ->
+            ""
+
+        Just card ->
+            Maybe.withDefault "" card.text
 
 
 viewCard : Subject -> Card -> Html Msg
