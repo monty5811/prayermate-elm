@@ -3,8 +3,10 @@ module DragDrop
         ( Model
         , Msg
         , Res(..)
+        , Target(..)
         , draggable
-        , droppable
+        , droppableItem
+        , droppableZone
         , init
         , isDragged
         , isOver
@@ -19,9 +21,9 @@ import Json.Decode
 
 type Msg zone item
     = Drag zone item
-    | Drop zone
-    | DragOver zone
-    | DragLeave zone
+    | Drop (Target zone item)
+    | DragOver (Target zone item)
+    | DragLeave (Target zone item)
     | DragEnd
 
 
@@ -32,8 +34,13 @@ type alias Model zone item =
 type alias DnDModel zone item =
     { startZone : zone
     , item : item
-    , hovering : Maybe zone
+    , hovering : Maybe (Target zone item)
     }
+
+
+type Target zone item
+    = Zone zone
+    | Item zone item
 
 
 init : Model zone item
@@ -42,8 +49,8 @@ init =
 
 
 type Res zone item
-    = Dragging zone (Maybe zone) item
-    | Dropped zone zone item
+    = Dragging zone (Maybe (Target zone item)) item
+    | Dropped zone (Target zone item) item
     | DraggingCancelled
 
 
@@ -59,16 +66,16 @@ update msg model_ =
             , Dragging startZone Nothing item
             )
 
-        ( DragOver overZone, Just model ) ->
-            ( Just { model | hovering = Just overZone }
-            , Dragging model.startZone (Just overZone) model.item
+        ( DragOver overTarget, Just model ) ->
+            ( Just { model | hovering = Just overTarget }
+            , Dragging model.startZone (Just overTarget) model.item
             )
 
         ( DragOver _, Nothing ) ->
             cancel
 
-        ( Drop endZone, Just model ) ->
-            ( Nothing, Dropped model.startZone endZone model.item )
+        ( Drop endTarget, Just model ) ->
+            ( Nothing, Dropped model.startZone endTarget model.item )
 
         ( Drop _, Nothing ) ->
             cancel
@@ -94,11 +101,20 @@ cancel =
 -- Html attributes
 
 
-droppable : (Msg a item -> msg) -> a -> List (Html.Attribute msg)
-droppable tagger zone =
-    [ onDrop <| tagger <| Drop zone
-    , onDragEnter <| tagger <| DragOver zone
-    , onDragLeave <| tagger <| DragLeave zone
+droppableZone : (Msg zone item -> msg) -> zone -> List (Html.Attribute msg)
+droppableZone tagger zone =
+    [ onDrop <| tagger <| Drop <| Zone zone
+    , onDragEnter <| tagger <| DragOver <| Zone zone
+    , onDragLeave <| tagger <| DragLeave <| Zone zone
+    , A.attribute "ondragover" "return false"
+    ]
+
+
+droppableItem : (Msg zone item -> msg) -> zone -> item -> List (Html.Attribute msg)
+droppableItem tagger zone item =
+    [ onDrop <| tagger <| Drop <| Item zone item
+    , onDragEnter <| tagger <| DragOver <| Item zone item
+    , onDragLeave <| tagger <| DragLeave <| Item zone item
     , A.attribute "ondragover" "return false"
     ]
 
@@ -162,8 +178,8 @@ onDrop msg =
 -- helpers
 
 
-isOver : Model zone item -> zone -> Bool
-isOver model_ currentZone =
+isOver : Model zone item -> Target zone item -> Bool
+isOver model_ currentTarget =
     case model_ of
         Nothing ->
             False
@@ -173,8 +189,8 @@ isOver model_ currentZone =
                 Nothing ->
                     False
 
-                Just zone ->
-                    zone == currentZone
+                Just target ->
+                    target == currentTarget
 
 
 isDragged : Model zone item -> item -> Bool

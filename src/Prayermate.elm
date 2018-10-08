@@ -19,7 +19,6 @@ module Prayermate
         , decodeSubject
         , deleteCategory
         , deleteSubject
-        , dropSubject
         , encodeCard
         , encodeCategory
         , encodeFeed
@@ -29,7 +28,6 @@ module Prayermate
         , getSelectedDates
         , getSelectedDaysOfMonth
         , intToDayOfTheWeekMask
-        , maybeAddSubject
         , newCard
         , newCategory
         , newSubject
@@ -566,14 +564,6 @@ replaceCategory orig new pm =
     { pm | categories = Util.replaceItem orig new pm.categories }
 
 
-maybeAddSubject : Subject -> Category -> Category -> Category
-maybeAddSubject sub newCat currentCat =
-    if newCat == currentCat then
-        { currentCat | subjects = List.append currentCat.subjects [ sub ] }
-    else
-        currentCat
-
-
 addNewSubject : Time.Posix -> String -> Category -> Category
 addNewSubject currentTime name cat =
     { cat | subjects = List.append cat.subjects [ newSubject currentTime name Nothing ] }
@@ -600,21 +590,6 @@ deleteSubject sub category =
 deleteSubjectHelp : Subject -> List Subject -> List Subject
 deleteSubjectHelp sub subjects =
     List.filter (\x -> x /= sub) subjects
-
-
-dropSubject : Subject -> Category -> Category -> List Category -> List Category
-dropSubject sub startCat destCat catList =
-    if startCat == destCat then
-        -- short circuit if start and end are the same
-        catList
-    else
-        let
-            updatedStartCat =
-                deleteSubject sub startCat
-        in
-        catList
-            |> List.map (maybeAddSubject sub destCat)
-            |> Util.replaceItem startCat updatedStartCat
 
 
 addNewCategory : Time.Posix -> String -> PrayerMate -> PrayerMate

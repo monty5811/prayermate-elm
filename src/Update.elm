@@ -343,10 +343,10 @@ update msg model =
                             , Cmd.none
                             )
 
-                        Dropped startCat endCat subject ->
+                        Dropped startCat endTarget subject ->
                             let
                                 cats =
-                                    RemoteData.map (.categories >> dropSubject subject startCat endCat) model.pm
+                                    RemoteData.map (.categories >> dropSubject subject startCat endTarget) model.pm
                             in
                             ( { model
                                 | step = CategoriesList (ViewCats dndModel)
@@ -525,7 +525,7 @@ update msg model =
                             newCats =
                                 model.pm
                                     |> RemoteData.map .categories
-                                    |> RemoteData.map (List.map (maybeAddSubject sub2Move newCat))
+                                    |> RemoteData.map (List.map (maybeAddSubjectToEnd sub2Move newCat))
                                     |> RemoteData.map (Util.replaceItem originalCat newCurrentCat)
                         in
                         ( { model
@@ -888,6 +888,88 @@ toggleWeekday selectedDays weekday cat subject card model =
             RemoteData.map (replaceCategory cat newCat) model.pm
     in
     ( { model | pm = newPm }, Cmd.none )
+
+
+dropSubject : Subject -> Category -> DragDrop.Target Category Subject -> List Category -> List Category
+dropSubject sub startCat destTarget catList =
+    case destTarget of
+        DragDrop.Zone destCat ->
+            if startCat == destCat then
+                -- short circuit if start and end are the same
+                catList
+            else
+                let
+                    updatedStartCat =
+                        deleteSubject sub startCat
+                in
+                catList
+                    |> List.map (maybeAddSubjectToEnd sub destCat)
+                    |> Util.replaceItem startCat updatedStartCat
+
+        DragDrop.Item destCat destSub ->
+            case ( destCat == startCat, destSub == sub ) of
+                ( True, True ) ->
+                    -- short circuit if start and end are the same
+                    catList
+
+                ( False, True ) ->
+                    -- identical subjects on different lists, don't do anything
+                    catList
+
+                ( True, False ) ->
+                    -- moving within a list
+                    -- we need to delete the item from the current category and add it back in the correct place
+                    let
+                        startCatWithoutSub =
+                            deleteSubject sub startCat
+
+                        updatedStartCat =
+                            maybeAddSubjectAfterExistingSub destSub sub startCatWithoutSub startCatWithoutSub
+                    in
+                    catList
+                        |> Util.replaceItem startCat updatedStartCat
+
+                ( False, False ) ->
+                    -- moving between lists
+                    -- we need to delete the item from the start category and add to the new category
+                    let
+                        updatedStartCat =
+                            deleteSubject sub startCat
+                    in
+                    catList
+                        |> List.map (maybeAddSubjectAfterExistingSub destSub sub destCat)
+                        |> Util.replaceItem startCat updatedStartCat
+
+
+maybeAddSubjectToEnd : Subject -> Category -> Category -> Category
+maybeAddSubjectToEnd sub newCat currentCat =
+    if newCat == currentCat then
+        { currentCat | subjects = List.append currentCat.subjects [ sub ] }
+    else
+        currentCat
+
+
+maybeAddSubjectAfterExistingSub : Subject -> Subject -> Category -> Category -> Category
+maybeAddSubjectAfterExistingSub destSub newSub newCat currentCat =
+    if newCat == currentCat then
+        if newSub == destSub then
+            currentCat
+        else
+            let
+                updatedCurrentCat =
+                    deleteSubject newSub currentCat
+            in
+            { currentCat | subjects = List.concatMap (insertSubAfter destSub newSub) updatedCurrentCat.subjects }
+    else
+        currentCat
+
+
+insertSubAfter : Subject -> Subject -> Subject -> List Subject
+insertSubAfter afterThisSub newSub currentSub =
+    if afterThisSub == currentSub then
+        [ currentSub, newSub ]
+    else
+        [ currentSub ]
 
 
 removeDay : WeekDay -> DayOfWeekMask -> DayOfWeekMask
