@@ -1,22 +1,21 @@
-module Views
-    exposing
-        ( GridOptions
-        , blueButton
-        , button
-        , defaultGridOptions
-        , defaultKanBanOptions
-        , form
-        , greenButton
-        , greyButton
-        , grid
-        , gridWithOptions
-        , invertedButton
-        , kanban
-        , kanbanWithOptions
-        , redButton
-        , textArea
-        , textInput
-        )
+module Views exposing
+    ( GridOptions
+    , blueButton
+    , button
+    , defaultGridOptions
+    , defaultKanBanOptions
+    , form
+    , greenButton
+    , greyButton
+    , grid
+    , gridWithOptions
+    , invertedButton
+    , kanban
+    , kanbanWithOptions
+    , redButton
+    , textArea
+    , textInput
+    )
 
 import Html exposing (Html)
 import Html.Attributes as A
@@ -25,7 +24,7 @@ import Html.Events as E
 
 rawButton : List (Html.Attribute msg) -> List (Html msg) -> Html msg
 rawButton attrs nodes =
-    Html.button (List.append [ A.class "font-bold py-2 px-4 rounded" ] attrs) nodes
+    Html.button (List.append [ A.class "py-2 px-2 rounded" ] attrs) nodes
 
 
 button : List (Html.Attribute msg) -> List (Html msg) -> Html msg
@@ -65,6 +64,7 @@ grid attrs nodes =
 
 type alias GridOptions =
     { maxCols : Int
+    , minCols : Int
     , gridGap : Int
     , minHeight : Int
     }
@@ -73,6 +73,7 @@ type alias GridOptions =
 defaultGridOptions : GridOptions
 defaultGridOptions =
     { maxCols = 4
+    , minCols = 4
     , gridGap = 10
     , minHeight = 600
     }
@@ -87,6 +88,10 @@ gridWithOptions opts attrs nodes =
         cols =
             if nNodes > opts.maxCols then
                 opts.maxCols
+
+            else if nNodes < opts.minCols then
+                opts.minCols
+
             else
                 nNodes
     in

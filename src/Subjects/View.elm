@@ -33,8 +33,12 @@ view category step categories =
                 [ Html.h2 []
                     [ V.invertedButton [ E.onClick CloseList ] [ Icons.cornerUpLeft ]
                     , Editing.original category |> Maybe.map .name |> Maybe.withDefault "" |> Html.text
+                    , createNewButton step
                     ]
-                , V.kanbanWithOptions { defaultKanBanOptions | minHeight = 500, colWidth = 360 } [] (createNewButton step :: List.map (viewSubject step) subjects)
+                , V.gridWithOptions
+                    { defaultGridOptions | minHeight = 400, minCols = 5 }
+                    [ A.class "py-4" ]
+                    (List.map (viewSubject step) subjects)
                 ]
 
 
@@ -48,7 +52,7 @@ createNewButton step =
             _ ->
                 [ V.greenButton
                     [ E.onClick SubCreateStart
-                    , A.class "w-full"
+                    , A.class "w-full mb-4"
                     ]
                     [ Html.text "Add New" ]
                 ]
@@ -87,6 +91,7 @@ viewSubject step sub =
                 EditSubjectName (Editing originalSub modifiedSub) ->
                     if sub == originalSub then
                         viewSubjectEdit viewSubjectEditProps modifiedSub
+
                     else
                         viewSubjectNoEdit sub
 
@@ -96,6 +101,7 @@ viewSubject step sub =
                 DeleteSubject sub2Delete ->
                     if sub == sub2Delete then
                         viewSubjectDelete
+
                     else
                         viewSubjectNoEdit sub
 
@@ -105,13 +111,18 @@ viewSubject step sub =
                 EditSubjectCard subWeAreEditing editingCard ->
                     viewSubjectEditingCard sub subWeAreEditing editingCard
     in
-    Html.div [ A.class "bg-grey px-2" ] elems
+    Html.div [ A.class "bg-white rounded shadow py-4 px-2" ] elems
 
 
 viewSubjectDelete : List (Html Msg)
 viewSubjectDelete =
-    [ V.redButton [ E.onClick SubDeleteConfirm ] [ Html.text "Delete" ]
-    , V.greyButton [ E.onClick SubDeleteCancel ] [ Html.text "Cancel" ]
+    [ V.form
+        [ E.onSubmit NoOp
+        , A.class "mt-8"
+        ]
+        [ V.redButton [ E.onClick SubDeleteConfirm, A.class "w-1/2" ] [ Html.text "Delete" ]
+        , V.greyButton [ E.onClick SubDeleteCancel, A.class "w-1/2" ] [ Html.text "Cancel" ]
+        ]
     ]
 
 
@@ -127,6 +138,7 @@ viewSubjectEditingCard currentSub subWeAreEditing editingCard =
                     , V.textArea 30 EditCardUpdateText (Maybe.withDefault "" modifiedCard.text)
                     ]
                 ]
+
             else
                 viewSubjectNoEdit currentSub
 
@@ -136,12 +148,15 @@ viewSubjectEditingCard currentSub subWeAreEditing editingCard =
 
 viewSubjectNoEdit : Subject -> List (Html Msg)
 viewSubjectNoEdit sub =
-    [ V.invertedButton [ E.onClick <| SubEditStart sub ] [ Icons.edit ]
-    , V.invertedButton [ E.onClick <| SubDeleteStart sub ] [ Icons.x ]
-    , V.invertedButton [ E.onClick <| SubMoveStart sub ] [ Icons.move ]
-    , Html.h3 [ A.class "pb-2" ] [ Html.text sub.name ]
+    [ Html.h3 [ A.class "inline-block py-2" ] [ Html.text sub.name ]
+    , Html.div [ A.class "float-right" ]
+        [ V.invertedButton [ E.onClick <| SubEditStart sub ] [ Icons.edit ]
+        , V.invertedButton [ E.onClick <| SubDeleteStart sub ] [ Icons.x ]
+        , V.invertedButton [ E.onClick <| SubMoveStart sub ] [ Icons.move ]
+        ]
     , if List.length sub.cards > 0 then
         Html.div [] <| List.map (viewCard sub) sub.cards
+
       else
         V.greenButton [ E.onClick <| CreateEmptyCard sub ] [ Icons.plus ]
     ]
@@ -184,9 +199,7 @@ getCardText sub =
 viewCard : Subject -> Card -> Html Msg
 viewCard sub card =
     Html.div [ A.class "p-2" ]
-        [ V.invertedButton [ E.onClick <| EditCardStart sub card, A.class "float-right" ] [ Icons.edit ]
-        , Html.div [ E.onClick <| EditCardStart sub card ] <| paragraghs card
-        ]
+        [ Html.div [ E.onClick <| EditCardStart sub card ] <| paragraghs card ]
 
 
 paragraghs : Card -> List (Html msg)

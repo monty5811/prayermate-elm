@@ -44,6 +44,7 @@ aboutScreen about show =
                 , Html.a [ E.onClick ToggleAbout, A.class "absolute pin-t pin-r pt-4 px-4 cursor-pointer" ] [ Icons.x ]
                 ]
             ]
+
     else
         Html.text ""
 
@@ -62,7 +63,7 @@ navigation : Model -> Html Msg
 navigation model =
     Html.ul [ A.class "list-reset flex items-center w-full p-3 bg-grey-dark" ]
         [ Html.li [ A.class "mr-6" ]
-            [ Html.a [ A.class "text-white font-bold" ]
+            [ Html.a [ A.class "text-white" ]
                 [ Html.text "Unofficial PrayerMate Editor" ]
             ]
         , Html.li [ A.class "mr-6" ]

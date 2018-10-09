@@ -60,12 +60,14 @@ viewCategory step cat =
         EditCat (Editing originalCat modifiedCat) ->
             if cat == originalCat then
                 viewCategoryEdit modifiedCat
+
             else
                 viewCategoryNoEdit Nothing cat
 
         DeleteCat cat2Delete ->
             if cat == cat2Delete then
                 viewCategoryDelete
+
             else
                 viewCategoryNoEdit Nothing cat
 
@@ -75,13 +77,14 @@ viewCategory step cat =
         EditSubject dndState eCat eSub ->
             if eCat == cat then
                 viewCategoryEditSubject cat eSub
+
             else
                 viewCategoryNoEdit dndState cat
 
 
 catColClass : String
 catColClass =
-    "bg-grey px-2"
+    "bg-grey-light px-2 rounded shadow"
 
 
 viewCategoryNoEdit : DragDrop.Model Category Subject -> Category -> Html Msg
@@ -93,6 +96,7 @@ viewCategoryNoEdit dndModel cat =
         dropClass =
             if isOver then
                 "bg-green-light"
+
             else
                 ""
     in
@@ -114,6 +118,7 @@ fakeSubjectCard cat isOver =
             Html.li
                 [ A.class "p-4 mb-2 cursor-none border-dashed border-blue-light border-2" ]
                 []
+
     else
         Nothing
 
@@ -144,12 +149,13 @@ subjectCard dndModel cat sub =
         dragClass =
             if DragDrop.isDragged dndModel sub then
                 "bg-grey-darker text-grey"
+
             else
-                "bg-grey-light"
+                "bg-white"
     in
     [ Just <|
         Html.li
-            ([ A.class "p-2 mb-2 cursor-point"
+            ([ A.class "p-2 mb-2 rounded shadow cursor-point"
              , A.class dragClass
              , E.onClick <| CatEditSubjectStart cat sub
              ]
