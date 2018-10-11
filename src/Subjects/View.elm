@@ -15,9 +15,9 @@ view : Editing Category -> SubjectStep -> List Category -> Html Msg
 view category step categories =
     case step of
         MoveSubject sub2move ->
-            Html.div []
-                [ Html.h3 [ A.class "text-center" ] [ Html.text <| "Move " ++ sub2move.name ++ " to a different list:" ]
-                , V.greyButton [ A.class "w-full my-8", E.onClick SubMoveCancel ] [ Html.text "Cancel Move" ]
+            Html.div [ A.class "px-6" ]
+                [ Html.h3 [ A.class "text-center" ] [ Html.text <| "Move \"" ++ sub2move.name ++ "\" to a different list:" ]
+                , V.greenButton [ A.class "w-full my-8", E.onClick SubMoveCancel ] [ Html.text "Cancel Move" ]
                 , V.gridWithOptions { defaultGridOptions | minHeight = 150, gridGap = 20 } [] (List.map viewCat categories)
                 ]
 
@@ -29,14 +29,16 @@ view category step categories =
                         |> Maybe.map .subjects
                         |> Maybe.withDefault []
             in
-            Html.div [ A.class "overflow-x-scroll" ]
-                [ Html.h2 []
-                    [ V.invertedButton [ E.onClick CloseList ] [ Icons.cornerUpLeft ]
-                    , Editing.original category |> Maybe.map .name |> Maybe.withDefault "" |> Html.text
+            Html.div [ A.class "overflow-x-scroll px-6" ]
+                [ Html.div [ A.class "flex items-center" ]
+                    [ Html.h2 [ A.class "inline-block" ]
+                        [ V.invertedButton [ E.onClick CloseList ] [ Icons.cornerUpLeft ]
+                        , Editing.original category |> Maybe.map .name |> Maybe.withDefault "" |> Html.text
+                        ]
                     , createNewButton step
                     ]
                 , V.gridWithOptions
-                    { defaultGridOptions | minHeight = 400, minCols = 5 }
+                    { defaultGridOptions | minHeight = 300, minCols = 5 }
                     [ A.class "py-4" ]
                     (List.map (viewSubject step) subjects)
                 ]
@@ -44,7 +46,7 @@ view category step categories =
 
 createNewButton : SubjectStep -> Html Msg
 createNewButton step =
-    Html.div [ A.class "w-full" ] <|
+    Html.div [ A.class "inline-block ml-8" ] <|
         case step of
             CreateSubject tmpName ->
                 createNewSubject tmpName
@@ -52,7 +54,7 @@ createNewButton step =
             _ ->
                 [ V.greenButton
                     [ E.onClick SubCreateStart
-                    , A.class "w-full mb-4"
+                    , A.class "w-full"
                     ]
                     [ Html.text "Add New" ]
                 ]
@@ -60,10 +62,10 @@ createNewButton step =
 
 createNewSubject : String -> List (Html Msg)
 createNewSubject tmpName =
-    [ V.form [ E.onSubmit SubCreateSave ]
-        [ V.textInput SubCreateUpdateName tmpName
-        , V.greenButton [ E.onClick SubCreateSave ] [ Html.text "Create" ]
-        , V.greyButton [ E.onClick SubCreateCancel ] [ Html.text "Cancel" ]
+    [ V.simpleForm [ E.onSubmit SubCreateSave ]
+        [ V.textInput [ A.class "inline-block w-md mx-1" ] SubCreateUpdateName tmpName
+        , V.greenButton [ E.onClick SubCreateSave, A.class "mx-1" ] [ Html.text "Create" ]
+        , V.greyButton [ E.onClick SubCreateCancel, A.class "mx-1" ] [ Html.text "Cancel" ]
         ]
     ]
 
@@ -72,7 +74,7 @@ viewCat : Category -> Html Msg
 viewCat cat =
     Html.div
         [ E.onClick <| SubMoveComplete cat
-        , A.class "p-4 bg-blue hover:bg-blue-dark cursor-pointer text-white font-bold text-center text-3xl"
+        , A.class "p-4 rounded shadow-md bg-white text-grey-dark hover:bg-grey-dark hover:border hover:text-white cursor-pointer font-bold text-center text-3xl"
         ]
         [ Html.text cat.name ]
 
@@ -111,12 +113,12 @@ viewSubject step sub =
                 EditSubjectCard subWeAreEditing editingCard ->
                     viewSubjectEditingCard sub subWeAreEditing editingCard
     in
-    Html.div [ A.class "bg-white rounded shadow py-4 px-2" ] elems
+    Html.div [ V.colClass ] elems
 
 
 viewSubjectDelete : List (Html Msg)
 viewSubjectDelete =
-    [ V.form
+    [ V.simpleForm
         [ E.onSubmit NoOp
         , A.class "mt-8"
         ]
@@ -131,10 +133,10 @@ viewSubjectEditingCard currentSub subWeAreEditing editingCard =
     case ( subWeAreEditing, editingCard ) of
         ( Editing origSub _, Editing _ modifiedCard ) ->
             if currentSub == origSub then
-                [ V.form
+                [ V.simpleForm
                     [ E.onSubmit EditCardSave ]
-                    [ V.greenButton [ E.onClick EditCardSave ] [ Html.text "Save" ]
-                    , V.greyButton [ E.onClick EditCardCancel ] [ Html.text "Cancel" ]
+                    [ V.greenButton [ E.onClick EditCardSave, A.class "w-1/2" ] [ Html.text "Save" ]
+                    , V.greyButton [ E.onClick EditCardCancel, A.class "w-1/2" ] [ Html.text "Cancel" ]
                     , V.textArea 30 EditCardUpdateText (Maybe.withDefault "" modifiedCard.text)
                     ]
                 ]
@@ -176,12 +178,12 @@ viewSubjectEditProps =
 
 viewSubjectEdit : ViewSubjectEditProps -> Subject -> List (Html Msg)
 viewSubjectEdit props modifiedSub =
-    [ V.form
+    [ V.simpleForm
         [ E.onSubmit props.save ]
-        [ V.textInput props.updateName modifiedSub.name
-        , V.textArea 25 CatEditUpdateCardText (getCardText modifiedSub)
-        , V.greenButton [ E.onClick props.save ] [ Html.text "Save" ]
-        , V.greyButton [ E.onClick props.cancel ] [ Html.text "Cancel" ]
+        [ V.textInput [ A.class "w-full" ] props.updateName modifiedSub.name
+        , V.textArea 15 CatEditUpdateCardText (getCardText modifiedSub)
+        , V.greenButton [ E.onClick props.save, A.class "w-1/2" ] [ Html.text "Save" ]
+        , V.greyButton [ E.onClick props.cancel, A.class "w-1/2" ] [ Html.text "Cancel" ]
         ]
     ]
 

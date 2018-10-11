@@ -24,12 +24,12 @@ view model =
     { title = "unofficial prayermate"
     , body =
         [ Html.main_
-            [ A.class "min-w-screen min-h-screen bg-blue-lightest"
+            [ A.class "min-w-screen min-h-screen"
             , A.style "font-family" "'Roboto', sans-serif"
             ]
             [ navigation model
             , aboutScreen model.about model.showAbout
-            , Html.section [ A.class "w-full h-full p-6" ] [ mainContent model ]
+            , Html.section [ A.class "w-full h-full py-6" ] [ mainContent model ]
             ]
         ]
     }
@@ -61,7 +61,7 @@ aboutText about =
 
 navigation : Model -> Html Msg
 navigation model =
-    Html.ul [ A.class "list-reset flex items-center w-full p-3 bg-grey-dark" ]
+    Html.ul [ A.class "list-reset flex items-center w-full p-3 bg-grey-darkest" ]
         [ Html.li [ A.class "mr-6" ]
             [ Html.a [ A.class "text-white" ]
                 [ Html.text "Unofficial PrayerMate Editor" ]
@@ -169,7 +169,7 @@ mapRemoteView fn remote =
 
 landingView : WebData PrayerMate -> Html Msg
 landingView cachedData =
-    Html.div [ A.class "mx-auto w-1/2 my-8 p-4 bg-grey-dark" ]
+    Html.div [ A.class "mx-auto w-1/2 my-8 p-4" ]
         [ cachedSessionView cachedData
         , landingButton
             [ A.class "bg-blue" ]

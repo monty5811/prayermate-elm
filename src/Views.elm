@@ -2,6 +2,7 @@ module Views exposing
     ( GridOptions
     , blueButton
     , button
+    , colClass
     , defaultGridOptions
     , defaultKanBanOptions
     , form
@@ -13,6 +14,7 @@ module Views exposing
     , kanban
     , kanbanWithOptions
     , redButton
+    , simpleForm
     , textArea
     , textInput
     )
@@ -20,6 +22,11 @@ module Views exposing
 import Html exposing (Html)
 import Html.Attributes as A
 import Html.Events as E
+
+
+colClass : Html.Attribute msg
+colClass =
+    A.class "py-2 px-4 rounded-lg shadow-lg border border-solid border-grey"
 
 
 rawButton : List (Html.Attribute msg) -> List (Html msg) -> Html msg
@@ -141,18 +148,25 @@ kanbanWithOptions opts attrs nodes =
 
 form : List (Html.Attribute msg) -> List (Html msg) -> Html msg
 form attrs nodes =
-    Html.form (A.class "bg-white shadow-md rounded px-2 pt-6 pb-8 mb-4" :: attrs) nodes
+    simpleForm (A.class "bg-white shadow-md rounded px-2 pt-6 pb-8 mb-4" :: attrs) nodes
 
 
-textInput : (String -> msg) -> String -> Html msg
-textInput onInput value =
+simpleForm : List (Html.Attribute msg) -> List (Html msg) -> Html msg
+simpleForm attrs nodes =
+    Html.form attrs nodes
+
+
+textInput : List (Html.Attribute msg) -> (String -> msg) -> String -> Html msg
+textInput attrs onInput value =
     Html.input
-        [ A.type_ "text"
-        , A.class "shadow appearance-none border rounded w-full py-2 px-3 mb-2 text-grey-darker"
-        , A.value value
-        , A.id "focusable"
-        , E.onInput onInput
-        ]
+        ([ A.type_ "text"
+         , A.class "shadow appearance-none border rounded py-2 px-3 mb-2 text-grey-darker"
+         , A.value value
+         , A.id "focusable"
+         , E.onInput onInput
+         ]
+            ++ attrs
+        )
         []
 
 

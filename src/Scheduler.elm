@@ -127,7 +127,7 @@ view step pm =
                 cols =
                     getColumns pm
             in
-            Html.div []
+            Html.div [ A.class "px-6" ]
                 [ Markdown.toHtml [ A.class "mx-8 leading-normal font-sans" ] helpMd
                 , gridWithOptions gridOptions [ A.class "py-4 max-w-lg" ] (otherSchedCols cols)
                 , Html.h3 [] [ Html.text "Day of the Week" ]
@@ -219,6 +219,7 @@ dayOfMonthDay selectedDays currentDay =
         , A.class <|
             if List.member currentDay selectedDays then
                 "bg-green-light"
+
             else
                 "bg-grey"
         , E.onClick <| SchedDoMToggleDay currentDay
@@ -248,7 +249,7 @@ otherSchedCols cols =
 
 colView : String -> List CardDetails -> Html Msg
 colView title cds =
-    Html.div [ A.class "bg-grey px-2" ]
+    Html.div [ V.colClass ]
         [ Html.h3 [ A.class "py-2" ] [ Html.text title ]
         , Html.ul [ A.class "list-reset" ] (List.map cardView cds)
         ]
@@ -291,6 +292,7 @@ weekDaySelHelp (( cat, sub, card ) as cd) selectedDays =
             )
         , if sub.priorityLevel == 10000 then
             Html.div [ A.class "flex-10 mx-2 text-sm text-white" ] [ Html.text "Priority Level: Every Day" ]
+
           else
             Html.text ""
         ]
@@ -353,5 +355,6 @@ weekDayColour : WeekDay -> DayOfWeekMask -> String
 weekDayColour wd mask =
     if List.member wd mask then
         "text-green-light"
+
     else
         "text-black"

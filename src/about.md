@@ -16,9 +16,9 @@ https://twitter.com/andygeers/status/908439768643641344
 ## How to use it
 
  * Export your from PrayerMate - this gives you a `.json` file
- * Go to https://prayermate.deanmontgomery.com and import your data (**Note** the client is all run client side - your data is never sent to a server)
+ * Go to https://prayermate.deanmontgomery.com and import your data (**Note** everthing is all run client side - your data is never sent to a server)
  * Edit your data until you are happy
- * Export from the web client - this gives you anoterh `.json` file
+ * Export from the web client - this gives you another `.json` file
  * Import this new file into PrayerMate
 
 ## Caveats

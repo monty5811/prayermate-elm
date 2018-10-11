@@ -14,23 +14,26 @@ import Views as V exposing (defaultGridOptions)
 
 view : String -> Maybe PrayerMate -> Html Msg
 view raw parsed =
-    Html.div []
-        [ Html.h2 [] [ Html.text "CSV Convertor" ]
-        , Html.br [] []
-        , Html.p [] [ Html.text "Paste some csv data, or upload a .csv file, there should be no header row and you should have three columns: 'category, subject, prayer content'" ]
-        , Html.ul []
-            [ Html.li [] [ Html.text "The last column is optional" ]
-            , Html.li [] [ Html.text "If you want to paste data, open the file in a text editor (e.g. notepad) and copy from there as spreadsheet apps may give you tab-separated values instead - which won't work" ]
+    Html.div [ A.class "px-6" ]
+        [ Html.div [ A.class "w-1/2" ]
+            [ Html.h2 [] [ Html.text "CSV Convertor" ]
+            , Html.br [] []
+            , Html.p [] [ Html.text "Paste some csv data, or upload a .csv file, there should be no header row and you should have three columns: 'category, subject, prayer content'" ]
+            , Html.ul []
+                [ Html.li [] [ Html.text "The last column is optional" ]
+                , Html.li [] [ Html.text "If you want to paste data, open the file in a text editor (e.g. notepad) and copy from there as spreadsheet apps may give you tab-separated values instead - which won't work" ]
+                ]
             ]
         , Html.br [] []
         , Html.input
             [ A.type_ "file"
             , A.id "uploadCsvFile"
             , E.on "change" (Json.Decode.succeed <| FileSelected "uploadCsvFile")
+            , A.class "my-2"
             ]
             []
         , V.gridWithOptions
-            { defaultGridOptions | maxCols = 2 }
+            { defaultGridOptions | maxCols = 2, minCols = 2 }
             []
             [ V.textArea
                 20
@@ -83,6 +86,7 @@ cardView card =
         Just content ->
             if content == "" then
                 Html.text ""
+
             else
                 Html.li [] [ Html.text content ]
 
@@ -133,6 +137,7 @@ addNew currentTime cats catName subName content =
     if List.member catName (List.map .name cats) then
         -- category exists, add subject
         List.map (updateCatWithSubject currentTime catName subName content) cats
+
     else
         -- category does not exist, create it and append to list
         cats ++ [ createNewCatWithSubject currentTime catName subName content ]
@@ -142,6 +147,7 @@ updateCatWithSubject : Time.Posix -> String -> String -> String -> Category -> C
 updateCatWithSubject currentTime catName subName content cat =
     if cat.name == catName then
         { cat | subjects = cat.subjects ++ [ newSubject currentTime subName (Just content) ] }
+
     else
         cat
 
